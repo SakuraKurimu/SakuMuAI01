@@ -607,6 +607,84 @@
             color: var(--text-secondary);
         }
         
+        .message-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            justify-content: flex-end;
+        }
+        
+        .message-action-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
+        }
+        
+        .message-action-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+        
+        .message-action-btn.regenerate {
+            border-color: var(--info-color);
+            color: var(--info-color);
+        }
+        
+        .message-action-btn.regenerate:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        
+        .message-action-btn.undo {
+            border-color: var(--warning-color);
+            color: var(--warning-color);
+        }
+        
+        .message-action-btn.undo:hover {
+            background-color: rgba(245, 158, 11, 0.1);
+        }
+        
+        .message-action-btn.edit {
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+        
+        .message-action-btn.edit:hover {
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+        
+        .edit-message-container {
+            display: none;
+            margin-top: 10px;
+        }
+        
+        .edit-message-container.active {
+            display: block;
+        }
+        
+        .edit-textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--primary-color);
+            background-color: var(--background-sidebar);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 8px;
+        }
+        
+        .edit-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        
         .input-container {
             padding: 20px;
             border-top: 1px solid var(--border-color);
@@ -2896,9 +2974,10 @@
                 return;
             }
             
-            conversation.messages.forEach(message => {
+            conversation.messages.forEach((message, index) => {
                 const messageElement = document.createElement('div');
                 messageElement.className = `message ${message.role === 'user' ? 'user-message' : 'ai-message'}`;
+                messageElement.dataset.index = index;
                 
                 const wordCount = message.content.length;
                 
@@ -2918,9 +2997,44 @@
                         <span>字数: ${wordCount}</span>
                         <span>消耗: ${message.batteryCost ? message.batteryCost.toFixed(3) : '0.000'} 电池</span>
                     </div>
+                    <div class="message-actions" id="messageActions-${index}"></div>
+                    <div class="edit-message-container" id="editContainer-${index}">
+                        <textarea class="edit-textarea" id="editTextarea-${index}">${message.content}</textarea>
+                        <div class="edit-actions">
+                            <button class="message-action-btn" data-action="save-edit" data-index="${index}">保存</button>
+                            <button class="message-action-btn" data-action="cancel-edit" data-index="${index}">取消</button>
+                        </div>
+                    </div>
                 `;
                 
                 messagesContainer.appendChild(messageElement);
+                
+                const messageActions = document.getElementById(`messageActions-${index}`);
+                
+                if (message.role === 'assistant') {
+                    const regenerateBtn = document.createElement('button');
+                    regenerateBtn.className = 'message-action-btn regenerate';
+                    regenerateBtn.innerHTML = '<i class="fas fa-redo-alt"></i> 重新生成';
+                    regenerateBtn.dataset.index = index;
+                    regenerateBtn.addEventListener('click', regenerateAIResponse);
+                    
+                    const undoBtn = document.createElement('button');
+                    undoBtn.className = 'message-action-btn undo';
+                    undoBtn.innerHTML = '<i class="fas fa-undo"></i> 撤回';
+                    undoBtn.dataset.index = index;
+                    undoBtn.addEventListener('click', undoMessagePair);
+                    
+                    messageActions.appendChild(regenerateBtn);
+                    messageActions.appendChild(undoBtn);
+                }
+                
+                const editBtn = document.createElement('button');
+                editBtn.className = 'message-action-btn edit';
+                editBtn.innerHTML = '<i class="fas fa-edit"></i> 编辑';
+                editBtn.dataset.index = index;
+                editBtn.addEventListener('click', editMessage);
+                
+                messageActions.appendChild(editBtn);
             });
             
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -2977,6 +3091,257 @@
             html = '<p>' + html + '</p>';
             
             return html;
+        }
+        
+        async function regenerateAIResponse(e) {
+            const index = parseInt(e.target.dataset.index);
+            const conversation = getCurrentConversation();
+            
+            if (!conversation || index >= conversation.messages.length) return;
+            
+            const messageToRegenerate = conversation.messages[index];
+            if (messageToRegenerate.role !== 'assistant') return;
+            
+            const previousUserMessage = index > 0 ? conversation.messages[index - 1] : null;
+            if (!previousUserMessage || previousUserMessage.role !== 'user') {
+                showNotification('找不到对应的用户消息', 'error');
+                return;
+            }
+            
+            if (apis.length === 0) {
+                showNotification('请先设置API密钥', 'error');
+                return;
+            }
+            
+            if (battery <= 0) {
+                showNotification('电池不足，请充值后使用', 'error');
+                return;
+            }
+            
+            const tempMessagesContainer = messagesContainer.innerHTML;
+            messagesContainer.innerHTML = tempMessagesContainer;
+            
+            const aiMessageElement = document.createElement('div');
+            aiMessageElement.className = 'message ai-message';
+            aiMessageElement.innerHTML = `
+                <div class="message-header">
+                    <span>${conversation.aiNickname || 'AI'}</span>
+                    <span>重新生成中...</span>
+                </div>
+                <div class="loading">
+                    <div class="loading-dots">
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                    </div>
+                </div>
+            `;
+            
+            const originalMessageElement = document.querySelector(`.message[data-index="${index}"]`);
+            if (originalMessageElement) {
+                originalMessageElement.style.opacity = '0.5';
+            }
+            
+            messagesContainer.appendChild(aiMessageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            try {
+                const tempConversation = JSON.parse(JSON.stringify(conversation));
+                tempConversation.messages = tempConversation.messages.slice(0, index);
+                
+                const costEstimate = calculateBatteryCostByTokens(tempConversation, previousUserMessage.content);
+                
+                if (battery - costEstimate.cost < 0) {
+                    aiMessageElement.remove();
+                    if (originalMessageElement) {
+                        originalMessageElement.style.opacity = '1';
+                    }
+                    showNotification('电池不足，请充值后使用', 'error');
+                    return;
+                }
+                
+                const aiResponse = await getAIResponse(tempConversation, previousUserMessage.content);
+                
+                aiMessageElement.remove();
+                if (originalMessageElement) {
+                    originalMessageElement.remove();
+                }
+                
+                const finalCost = calculateBatteryCostByTokens(tempConversation, previousUserMessage.content, aiResponse);
+                
+                const originalAICost = conversation.messages[index].batteryCost || 0;
+                const newAICost = calculateBatteryCostByTokensForText(aiResponse);
+                
+                conversation.messages[index].content = aiResponse;
+                conversation.messages[index].timestamp = new Date().toISOString();
+                conversation.messages[index].wordCount = aiResponse.length;
+                conversation.messages[index].batteryCost = newAICost;
+                
+                conversation.updatedAt = new Date().toISOString();
+                
+                const costDifference = finalCost.cost - originalAICost;
+                if (costDifference > 0) {
+                    consumeBattery(costDifference);
+                } else if (costDifference < 0) {
+                    rechargeBatteryFunc(Math.abs(costDifference));
+                }
+                
+                currentConversationCost += costDifference;
+                conversation.totalCost = currentConversationCost;
+                
+                saveUserData();
+                
+                renderMessages();
+                updateRecentConversations();
+                
+                updateBatterySummary();
+                updateCostEstimate();
+                
+                showNotification('AI回复已重新生成', 'success');
+                
+            } catch (error) {
+                console.error('重新生成AI响应失败:', error);
+                
+                aiMessageElement.remove();
+                if (originalMessageElement) {
+                    originalMessageElement.style.opacity = '1';
+                }
+                
+                showNotification(`重新生成失败: ${error.message}`, 'error');
+            }
+        }
+        
+        function undoMessagePair(e) {
+            const index = parseInt(e.target.dataset.index);
+            const conversation = getCurrentConversation();
+            
+            if (!conversation || index >= conversation.messages.length) return;
+            
+            const aiMessage = conversation.messages[index];
+            if (aiMessage.role !== 'assistant') return;
+            
+            const userMessageIndex = index > 0 ? index - 1 : -1;
+            if (userMessageIndex === -1 || conversation.messages[userMessageIndex].role !== 'user') {
+                showNotification('找不到对应的用户消息', 'error');
+                return;
+            }
+            
+            const userMessage = conversation.messages[userMessageIndex];
+            
+            if (confirm('确定要撤回这一轮对话吗？用户消息将复制到输入框中。')) {
+                const userMessageContent = userMessage.content;
+                
+                const aiCost = aiMessage.batteryCost || 0;
+                const userCost = userMessage.batteryCost || 0;
+                const totalCostToRefund = aiCost + userCost;
+                
+                conversation.messages.splice(userMessageIndex, 2);
+                conversation.updatedAt = new Date().toISOString();
+                
+                currentConversationCost -= totalCostToRefund;
+                conversation.totalCost = currentConversationCost;
+                
+                rechargeBatteryFunc(totalCostToRefund);
+                
+                saveUserData();
+                
+                messageInput.value = userMessageContent;
+                messageInput.focus();
+                
+                renderMessages();
+                updateRecentConversations();
+                
+                updateBatterySummary();
+                updateCostEstimate();
+                
+                showNotification('对话已撤回，用户消息已复制到输入框', 'success');
+            }
+        }
+        
+        function editMessage(e) {
+            const index = parseInt(e.target.dataset.index);
+            const editContainer = document.getElementById(`editContainer-${index}`);
+            const messageElement = document.querySelector(`.message[data-index="${index}"]`);
+            const messageContent = document.querySelector(`.message[data-index="${index}"] .message-content`);
+            
+            if (!editContainer || !messageElement || !messageContent) return;
+            
+            if (editContainer.classList.contains('active')) {
+                editContainer.classList.remove('active');
+                messageContent.style.display = 'block';
+            } else {
+                editContainer.classList.add('active');
+                messageContent.style.display = 'none';
+            }
+            
+            const saveEditBtn = document.querySelector(`button[data-action="save-edit"][data-index="${index}"]`);
+            const cancelEditBtn = document.querySelector(`button[data-action="cancel-edit"][data-index="${index}"]`);
+            
+            if (saveEditBtn && cancelEditBtn) {
+                saveEditBtn.onclick = function() {
+                    saveMessageEdit(index);
+                };
+                
+                cancelEditBtn.onclick = function() {
+                    cancelMessageEdit(index);
+                };
+            }
+        }
+        
+        function saveMessageEdit(index) {
+            const editTextarea = document.getElementById(`editTextarea-${index}`);
+            const conversation = getCurrentConversation();
+            
+            if (!editTextarea || !conversation || index >= conversation.messages.length) return;
+            
+            const newContent = editTextarea.value.trim();
+            if (!newContent) {
+                showNotification('消息内容不能为空', 'error');
+                return;
+            }
+            
+            const originalMessage = conversation.messages[index];
+            const originalContent = originalMessage.content;
+            const originalCost = originalMessage.batteryCost || 0;
+            
+            const newCost = calculateBatteryCostByTokensForText(newContent);
+            const costDifference = newCost - originalCost;
+            
+            originalMessage.content = newContent;
+            originalMessage.timestamp = new Date().toISOString();
+            originalMessage.wordCount = newContent.length;
+            originalMessage.batteryCost = newCost;
+            
+            conversation.updatedAt = new Date().toISOString();
+            
+            currentConversationCost += costDifference;
+            conversation.totalCost = currentConversationCost;
+            
+            if (costDifference > 0) {
+                consumeBattery(costDifference);
+            } else if (costDifference < 0) {
+                rechargeBatteryFunc(Math.abs(costDifference));
+            }
+            
+            saveUserData();
+            
+            renderMessages();
+            updateRecentConversations();
+            
+            updateBatterySummary();
+            updateCostEstimate();
+            
+            showNotification('消息已更新', 'success');
+        }
+        
+        function cancelMessageEdit(index) {
+            const editContainer = document.getElementById(`editContainer-${index}`);
+            const messageContent = document.querySelector(`.message[data-index="${index}"] .message-content`);
+            
+            if (editContainer && messageContent) {
+                editContainer.classList.remove('active');
+                messageContent.style.display = 'block';
+            }
         }
         
         async function sendMessage() {
@@ -3042,7 +3407,7 @@
                     return;
                 }
                 
-                const aiResponse = await getAIResponse(conversation);
+                const aiResponse = await getAIResponse(conversation, content);
                 
                 aiMessageElement.remove();
                 
@@ -3087,7 +3452,7 @@
             }
         }
         
-        async function getAIResponse(conversation) {
+        async function getAIResponse(conversation, userMessageContent) {
             if (apis.length === 0) {
                 throw new Error('请先设置API密钥');
             }
@@ -3130,6 +3495,11 @@
                     content: msg.content
                 });
             }
+            
+            messages.push({
+                role: 'user',
+                content: userMessageContent
+            });
             
             const endpoint = api.endpoint || 'https://api.deepseek.com/v1';
             const response = await fetch(`${endpoint}/chat/completions`, {
