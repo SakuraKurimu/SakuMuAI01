@@ -657,6 +657,33 @@
             background-color: rgba(16, 185, 129, 0.1);
         }
         
+        .message-action-btn.copy {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .message-action-btn.copy:hover {
+            background-color: rgba(124, 58, 237, 0.1);
+        }
+        
+        .message-action-btn.resend {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .message-action-btn.resend:hover {
+            background-color: rgba(124, 58, 237, 0.1);
+        }
+        
+        .message-action-btn.delete {
+            border-color: var(--danger-color);
+            color: var(--danger-color);
+        }
+        
+        .message-action-btn.delete:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        
         .edit-message-container {
             display: none;
             margin-top: 10px;
@@ -846,28 +873,6 @@
             padding: 10px;
             margin-top: 10px;
             font-size: 0.9rem;
-        }
-        
-        .battery-summary {
-            background-color: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-        }
-        
-        .battery-summary-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
-        
-        .battery-summary-total {
-            font-weight: 700;
-            color: var(--primary-color);
-            border-top: 1px solid var(--border-color);
-            padding-top: 10px;
-            margin-top: 10px;
         }
         
         .modal {
@@ -1265,13 +1270,7 @@
         }
         
         .preset-switch {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
+            display: none;
         }
         
         .switch-container {
@@ -1361,6 +1360,114 @@
         
         .preset-buttons .btn {
             flex: 1;
+        }
+        
+        .battery-details-modal .modal-content {
+            max-width: 600px;
+        }
+        
+        .battery-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .battery-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .battery-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .battery-tab-content {
+            display: none;
+        }
+        
+        .battery-tab-content.active {
+            display: block;
+        }
+        
+        .recharge-record-item,
+        .consumption-record-item {
+            padding: 12px 15px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.03);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .recharge-record-info {
+            flex: 1;
+        }
+        
+        .recharge-record-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .recharge-record-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .recharge-record-amount {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+        
+        .consumption-record-info {
+            flex: 1;
+        }
+        
+        .consumption-record-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .consumption-record-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .consumption-record-amount {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--danger-color);
+        }
+        
+        .consumption-record-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .battery-summary {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .battery-summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+        
+        .battery-summary-total {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.1rem;
         }
     </style>
 </head>
@@ -1514,10 +1621,14 @@
                 <div class="current-mode" id="currentMode">文字对话</div>
                 
                 <div class="header-actions">
+                    <button class="btn btn-primary" id="batteryDetailsBtn">
+                        <i class="fas fa-battery-three-quarters"></i>
+                        <span>电池详情</span>
+                    </button>
                     <button class="btn btn-primary" id="presetManagementBtn">
                         <i class="fas fa-sliders-h"></i>
                         <span>预设指令</span>
-                        <span class="nickname-status disabled" id="presetStatusDisplay">待机中</span>
+                        <span class="nickname-status disabled" id="presetStatusDisplay">未启用</span>
                     </button>
                     <button class="btn btn-info" id="settingsBtn">
                         <i class="fas fa-cog"></i>
@@ -1539,26 +1650,11 @@
                     </div>
                     
                     <div class="settings-group">
-                        <label class="settings-label">上下文关联长度: <span class="settings-value" id="contextValue">7</span></label>
+                        <label class="settings-label">记忆关联长度: <span class="settings-value" id="contextValue">7</span></label>
                         <input type="range" min="0" max="25" value="7" class="settings-slider" id="contextSlider">
                         <div class="context-cost-info">
-                            <div>当前上下文预估消耗: <span id="contextCostEstimate">0.000</span> 电池</div>
+                            <div>当前记忆预估消耗: <span id="contextCostEstimate">0.000</span> 电池</div>
                             <div>预估tokens: <span id="contextTokensEstimate">0</span></div>
-                        </div>
-                    </div>
-                    
-                    <div class="battery-summary">
-                        <div class="battery-summary-item">
-                            <span>当前对话消耗:</span>
-                            <span id="currentConversationCost">0.000</span>
-                        </div>
-                        <div class="battery-summary-item">
-                            <span>今日消耗:</span>
-                            <span id="todayCost">0.000</span>
-                        </div>
-                        <div class="battery-summary-item battery-summary-total">
-                            <span>总消耗:</span>
-                            <span id="totalCost">0.000</span>
                         </div>
                     </div>
                     
@@ -1605,11 +1701,11 @@
                     
                     <div class="cost-estimate" id="costEstimate" style="display: none;">
                         <div class="cost-estimate-item">
-                            <span class="cost-label">上下文长度:</span>
+                            <span class="cost-label">记忆长度:</span>
                             <span class="cost-value" id="currentContextLengthDisplay">7</span>
                         </div>
                         <div class="cost-estimate-item">
-                            <span class="cost-label">上下文消耗:</span>
+                            <span class="cost-label">基础消耗:</span>
                             <span class="cost-value" id="totalCostEstimate">0.000</span>
                             <span>电池</span>
                         </div>
@@ -1681,38 +1777,28 @@
                 <button class="modal-close" id="closePresetModal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="preset-switch">
-                    <div class="switch-container">
-                        <span>启用预设指令</span>
-                        <label class="switch">
-                            <input type="checkbox" id="presetToggle">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-                
                 <div class="form-group">
                     <label class="form-label">切换预设指令</label>
                     <select class="form-control" id="presetSelect">
-                        <option value="">选择预设指令</option>
+                        <option value="-1" selected>不使用</option>
                     </select>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">预设指令 <span id="presetTokensDisplay" style="color: var(--text-secondary); font-size: 0.9rem;">(tokens: 0)</span></label>
-                    <textarea class="form-control" id="presetInstruction" rows="6" placeholder="输入预设指令..."></textarea>
+                    <textarea class="form-control" id="presetInstruction" rows="6" placeholder="输入预设指令..." disabled></textarea>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">自定义预设名称</label>
-                    <input type="text" class="form-control" id="customPresetName" placeholder="自定义预设1">
+                    <input type="text" class="form-control" id="customPresetName" placeholder="自定义预设1" disabled>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">人物昵称设定</label>
                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <input type="text" class="form-control" id="aiNickname" placeholder="AI昵称">
-                        <input type="text" class="form-control" id="userNickname" placeholder="用户昵称">
+                        <input type="text" class="form-control" id="aiNickname" placeholder="AI昵称" disabled>
+                        <input type="text" class="form-control" id="userNickname" placeholder="用户昵称" disabled>
                     </div>
                     <small style="color: var(--text-secondary); display: block; margin-top: 5px;">昵称需同时设置或同时留空</small>
                 </div>
@@ -1732,6 +1818,38 @@
                     <i class="fas fa-trash"></i>
                     删除当前预设
                 </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal battery-details-modal" id="batteryDetailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">电池详情</h3>
+                <button class="modal-close" id="closeBatteryDetailsModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="battery-tabs">
+                    <div class="battery-tab active" data-tab="recharge">充值记录</div>
+                    <div class="battery-tab" data-tab="consumption">对话消耗</div>
+                </div>
+                
+                <div class="battery-tab-content active" id="rechargeTab">
+                    <div id="rechargeRecords">
+                    </div>
+                </div>
+                
+                <div class="battery-tab-content" id="consumptionTab">
+                    <div id="consumptionRecords">
+                    </div>
+                </div>
+                
+                <div class="battery-summary">
+                    <div class="battery-summary-item battery-summary-total">
+                        <span>总消耗:</span>
+                        <span id="batteryDetailsTotalCost">0.000</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1932,9 +2050,6 @@
         const temperatureValue = document.getElementById('temperatureValue');
         const contextSlider = document.getElementById('contextSlider');
         const contextValue = document.getElementById('contextValue');
-        const currentConversationCostElement = document.getElementById('currentConversationCost');
-        const todayCostElement = document.getElementById('todayCost');
-        const totalCostElement = document.getElementById('totalCost');
         const exportConversationBtn = document.getElementById('exportConversationBtn');
         const apiModal = document.getElementById('apiModal');
         const closeApiModal = document.getElementById('closeApiModal');
@@ -1957,13 +2072,21 @@
         const contextCostEstimate = document.getElementById('contextCostEstimate');
         const contextTokensEstimate = document.getElementById('contextTokensEstimate');
         const presetTokensDisplay = document.getElementById('presetTokensDisplay');
-        const presetToggle = document.getElementById('presetToggle');
         const presetStatusDisplay = document.getElementById('presetStatusDisplay');
         const customPresetName = document.getElementById('customPresetName');
         const aiNickname = document.getElementById('aiNickname');
         const userNickname = document.getElementById('userNickname');
         const newPresetBtn = document.getElementById('newPresetBtn');
         const deletePresetBtn = document.getElementById('deletePresetBtn');
+        const batteryDetailsBtn = document.getElementById('batteryDetailsBtn');
+        const batteryDetailsModal = document.getElementById('batteryDetailsModal');
+        const closeBatteryDetailsModal = document.getElementById('closeBatteryDetailsModal');
+        const batteryTabs = document.querySelectorAll('.battery-tab');
+        const rechargeTab = document.getElementById('rechargeTab');
+        const consumptionTab = document.getElementById('consumptionTab');
+        const rechargeRecords = document.getElementById('rechargeRecords');
+        const consumptionRecords = document.getElementById('consumptionRecords');
+        const batteryDetailsTotalCost = document.getElementById('batteryDetailsTotalCost');
         
         function estimateTextTokens(text) {
             if (!text || typeof text !== 'string') return 0;
@@ -2007,7 +2130,7 @@
         function calculateRequestTokens(conversation, newUserMessage = null) {
             let totalTokens = 0;
             
-            if (conversation.presetEnabled && conversation.presetContent) {
+            if (conversation.presetIndex !== -1 && conversation.presetContent) {
                 totalTokens += calculateMessageTokens(conversation.presetContent, true);
             }
             
@@ -2158,7 +2281,6 @@
                         switchConversation(conversations[currentMode][0].id);
                     }
                     
-                    updateBatterySummary();
                     updatePresetStatusDisplay();
                 } catch (error) {
                     console.error('加载用户数据失败:', error);
@@ -2258,8 +2380,9 @@
             closePresetModal.addEventListener('click', () => presetModal.classList.remove('active'));
             closeRenameModal.addEventListener('click', () => renameModal.classList.remove('active'));
             closeApiModal.addEventListener('click', () => apiModal.classList.remove('active'));
+            closeBatteryDetailsModal.addEventListener('click', () => batteryDetailsModal.classList.remove('active'));
             
-            [rechargeModal, presetModal, renameModal, apiModal, deleteApiModal].forEach(modal => {
+            [rechargeModal, presetModal, renameModal, apiModal, deleteApiModal, batteryDetailsModal].forEach(modal => {
                 modal.addEventListener('click', function(e) {
                     if (e.target === this) {
                         this.classList.remove('active');
@@ -2275,17 +2398,6 @@
             });
             
             presetInstruction.addEventListener('input', updatePresetTokensDisplay);
-            
-            presetToggle.addEventListener('change', function() {
-                const conversation = getCurrentConversation();
-                if (conversation) {
-                    conversation.presetEnabled = this.checked;
-                    saveUserData();
-                    updatePresetStatusDisplay();
-                    updateCostEstimate();
-                    updateContextCostInfo();
-                }
-            });
             
             savePresetBtn.addEventListener('click', savePreset);
             newPresetBtn.addEventListener('click', createNewPreset);
@@ -2360,7 +2472,7 @@
             });
             
             presetSelect.addEventListener('change', function() {
-                loadSelectedPreset();
+                handlePresetSelectChange();
             });
             
             aiNickname.addEventListener('input', function() {
@@ -2369,6 +2481,29 @@
             
             userNickname.addEventListener('input', function() {
                 handleNicknameChange();
+            });
+            
+            batteryDetailsBtn.addEventListener('click', function() {
+                batteryDetailsModal.classList.add('active');
+                loadBatteryDetails();
+            });
+            
+            batteryTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.dataset.tab;
+                    
+                    batteryTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    rechargeTab.classList.remove('active');
+                    consumptionTab.classList.remove('active');
+                    
+                    if (tabName === 'recharge') {
+                        rechargeTab.classList.add('active');
+                    } else {
+                        consumptionTab.classList.add('active');
+                    }
+                });
             });
         }
         
@@ -2438,7 +2573,9 @@
                     chat: [],
                     document: []
                 },
-                batteryHash: user.batteryHash || ''
+                batteryHash: user.batteryHash || '',
+                rechargeRecords: user.rechargeRecords || [],
+                consumptionRecords: user.consumptionRecords || []
             };
             
             if (currentUser.batteryHash) {
@@ -2527,6 +2664,8 @@
                     chat: [],
                     document: []
                 },
+                rechargeRecords: [],
+                consumptionRecords: [],
                 createdAt: new Date().toISOString()
             };
             
@@ -2594,13 +2733,29 @@
             messageInput.placeholder = battery <= 0 ? '电池不足，请充值后使用' : '输入消息...';
         }
           
-        function consumeBattery(cost) {
+        function consumeBattery(cost, conversationId = null, conversationTitle = null) {
             battery -= cost;
             
             if (battery < 0) battery = 0;
             
             totalCost += cost;
             todayCost += cost;
+            
+            if (conversationId && conversationTitle) {
+                const consumptionRecord = {
+                    id: Date.now(),
+                    conversationId: conversationId,
+                    conversationTitle: conversationTitle,
+                    amount: cost,
+                    timestamp: new Date().toISOString()
+                };
+                
+                if (currentUser && currentUser.consumptionRecords) {
+                    currentUser.consumptionRecords.push(consumptionRecord);
+                } else if (currentUser) {
+                    currentUser.consumptionRecords = [consumptionRecord];
+                }
+            }
             
             if (currentUser) {
                 currentUser.battery = battery;
@@ -2612,17 +2767,26 @@
             
             updateBatteryUI();
             
-            updateBatterySummary();
-            
             return battery;
         }
         
         function rechargeBatteryFunc(amount) {
             battery += amount;
             
+            const rechargeRecord = {
+                id: Date.now(),
+                amount: amount,
+                timestamp: new Date().toISOString()
+            };
+            
             if (currentUser) {
                 currentUser.battery = battery;
                 currentUser.batteryHash = simpleHash(battery.toString() + ENCRYPTION_KEY);
+                if (currentUser.rechargeRecords) {
+                    currentUser.rechargeRecords.push(rechargeRecord);
+                } else {
+                    currentUser.rechargeRecords = [rechargeRecord];
+                }
                 saveUserData();
             }
             
@@ -2742,15 +2906,19 @@
             battery = currentUser.battery || 0.000;
             totalCost = currentUser.totalCost || 0;
             todayCost = currentUser.todayCost || 0;
-            apis = currentUser.apis || [];
-            customPresets = currentUser.customPresets || [];
-            conversations = currentUser.conversations || {
-                chat: [],
-                document: []
-            };
+            apis = currentUser.apis;
+            customPresets = currentUser.customPresets;
+            conversations = currentUser.conversations;
             
             if (apis.length > 0) {
                 currentApiId = apis[0].id;
+            }
+            
+            if (!currentUser.rechargeRecords) {
+                currentUser.rechargeRecords = [];
+            }
+            if (!currentUser.consumptionRecords) {
+                currentUser.consumptionRecords = [];
             }
         }
         
@@ -2779,7 +2947,9 @@
                     batteryHash: currentUser.batteryHash,
                     apis: currentUser.apis,
                     customPresets: currentUser.customPresets,
-                    conversations: currentUser.conversations
+                    conversations: currentUser.conversations,
+                    rechargeRecords: currentUser.rechargeRecords || [],
+                    consumptionRecords: currentUser.consumptionRecords || []
                 };
                 
                 users[userIndex] = updatedUser;
@@ -2832,11 +3002,11 @@
                 contextLength: contextLength,
                 isNew: true,
                 totalCost: 0,
-                presetEnabled: false,
-                presetContent: '',
                 presetIndex: -1,
+                presetContent: '',
                 aiNickname: '',
-                userNickname: ''
+                userNickname: '',
+                failedMessages: []
             };
             
             conversations[currentMode].unshift(conversation);
@@ -2852,7 +3022,6 @@
             messageInput.focus();
             
             currentConversationCost = 0;
-            updateBatterySummary();
             updateCostEstimate();
             updatePresetStatusDisplay();
         }
@@ -2875,7 +3044,6 @@
                 contextLength = conversation.contextLength || contextLength;
                 
                 currentConversationCost = conversation.totalCost || 0;
-                updateBatterySummary();
                 updateCostEstimate();
                 updatePresetStatusDisplay();
                 
@@ -2987,6 +3155,8 @@
                 
                 const htmlContent = convertMarkdownToHtml(message.content);
                 
+                const isFailed = conversation.failedMessages && conversation.failedMessages.includes(index);
+                
                 messageElement.innerHTML = `
                     <div class="message-header">
                         <span>${displayName}</span>
@@ -3003,6 +3173,7 @@
                         <div class="edit-actions">
                             <button class="message-action-btn" data-action="save-edit" data-index="${index}">保存</button>
                             <button class="message-action-btn" data-action="cancel-edit" data-index="${index}">取消</button>
+                            <button class="message-action-btn delete" data-action="delete-message" data-index="${index}">删除</button>
                         </div>
                     </div>
                 `;
@@ -3018,6 +3189,12 @@
                     regenerateBtn.dataset.index = index;
                     regenerateBtn.addEventListener('click', regenerateAIResponse);
                     
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'message-action-btn copy';
+                    copyBtn.innerHTML = '<i class="fas fa-copy"></i> 复制';
+                    copyBtn.dataset.index = index;
+                    copyBtn.addEventListener('click', copyAIMessage);
+                    
                     const undoBtn = document.createElement('button');
                     undoBtn.className = 'message-action-btn undo';
                     undoBtn.innerHTML = '<i class="fas fa-undo"></i> 撤回';
@@ -3025,7 +3202,18 @@
                     undoBtn.addEventListener('click', undoMessagePair);
                     
                     messageActions.appendChild(regenerateBtn);
+                    messageActions.appendChild(copyBtn);
                     messageActions.appendChild(undoBtn);
+                } else if (message.role === 'user') {
+                    if (isFailed) {
+                        const resendBtn = document.createElement('button');
+                        resendBtn.className = 'message-action-btn resend';
+                        resendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 重新发送';
+                        resendBtn.dataset.index = index;
+                        resendBtn.addEventListener('click', resendMessage);
+                        
+                        messageActions.appendChild(resendBtn);
+                    }
                 }
                 
                 const editBtn = document.createElement('button');
@@ -3035,9 +3223,86 @@
                 editBtn.addEventListener('click', editMessage);
                 
                 messageActions.appendChild(editBtn);
+                
+                const deleteBtn = document.querySelector(`button[data-action="delete-message"][data-index="${index}"]`);
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', function() {
+                        deleteMessage(index);
+                    });
+                }
             });
             
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function copyAIMessage(e) {
+            const index = parseInt(e.target.dataset.index);
+            const conversation = getCurrentConversation();
+            
+            if (!conversation || index >= conversation.messages.length) return;
+            
+            const aiMessage = conversation.messages[index];
+            if (aiMessage.role !== 'assistant') return;
+            
+            navigator.clipboard.writeText(aiMessage.content)
+                .then(() => {
+                    showNotification('AI回复已复制到剪贴板', 'success');
+                })
+                .catch(err => {
+                    console.error('复制失败:', err);
+                    showNotification('复制失败', 'error');
+                });
+        }
+        
+        function resendMessage(e) {
+            const index = parseInt(e.target.dataset.index);
+            const conversation = getCurrentConversation();
+            
+            if (!conversation || index >= conversation.messages.length) return;
+            
+            const userMessage = conversation.messages[index];
+            if (userMessage.role !== 'user') return;
+            
+            if (conversation.failedMessages) {
+                const failedIndex = conversation.failedMessages.indexOf(index);
+                if (failedIndex !== -1) {
+                    conversation.failedMessages.splice(failedIndex, 1);
+                }
+            }
+            
+            const content = userMessage.content;
+            
+            conversation.messages.splice(index, 1);
+            
+            saveUserData();
+            
+            renderMessages();
+            
+            messageInput.value = content;
+            sendMessage();
+        }
+        
+        function deleteMessage(index) {
+            if (!confirm('确定要删除这条消息吗？此操作不可恢复。')) return;
+            
+            const conversation = getCurrentConversation();
+            if (!conversation || index >= conversation.messages.length) return;
+            
+            const message = conversation.messages[index];
+            const costToRefund = message.batteryCost || 0;
+            
+            conversation.messages.splice(index, 1);
+            
+            if (costToRefund > 0) {
+                rechargeBatteryFunc(costToRefund);
+            }
+            
+            conversation.updatedAt = new Date().toISOString();
+            
+            saveUserData();
+            
+            renderMessages();
+            showNotification('消息已删除', 'success');
         }
         
         function getDisplayName(role, conversation) {
@@ -3107,6 +3372,8 @@
                 showNotification('找不到对应的用户消息', 'error');
                 return;
             }
+            
+            if (!confirm('确定要重新生成这条AI回复吗？')) return;
             
             if (apis.length === 0) {
                 showNotification('请先设置API密钥', 'error');
@@ -3181,7 +3448,7 @@
                 
                 const costDifference = finalCost.cost - originalAICost;
                 if (costDifference > 0) {
-                    consumeBattery(costDifference);
+                    consumeBattery(costDifference, conversation.id, conversation.title);
                 } else if (costDifference < 0) {
                     rechargeBatteryFunc(Math.abs(costDifference));
                 }
@@ -3194,7 +3461,6 @@
                 renderMessages();
                 updateRecentConversations();
                 
-                updateBatterySummary();
                 updateCostEstimate();
                 
                 showNotification('AI回复已重新生成', 'success');
@@ -3251,7 +3517,6 @@
                 renderMessages();
                 updateRecentConversations();
                 
-                updateBatterySummary();
                 updateCostEstimate();
                 
                 showNotification('对话已撤回，用户消息已复制到输入框', 'success');
@@ -3318,7 +3583,7 @@
             conversation.totalCost = currentConversationCost;
             
             if (costDifference > 0) {
-                consumeBattery(costDifference);
+                consumeBattery(costDifference, conversation.id, conversation.title);
             } else if (costDifference < 0) {
                 rechargeBatteryFunc(Math.abs(costDifference));
             }
@@ -3328,7 +3593,6 @@
             renderMessages();
             updateRecentConversations();
             
-            updateBatterySummary();
             updateCostEstimate();
             
             showNotification('消息已更新', 'success');
@@ -3429,14 +3693,13 @@
                 currentConversationCost += finalCost.cost;
                 conversation.totalCost = currentConversationCost;
                 
-                consumeBattery(finalCost.cost);
+                consumeBattery(finalCost.cost, conversation.id, conversation.title);
                 
                 saveUserData();
                 
                 renderMessages();
                 updateRecentConversations();
                 
-                updateBatterySummary();
                 updateCostEstimate();
                 
             } catch (error) {
@@ -3444,7 +3707,13 @@
                 
                 aiMessageElement.remove();
                 
-                conversation.messages.pop();
+                const lastIndex = conversation.messages.length - 1;
+                if (!conversation.failedMessages) {
+                    conversation.failedMessages = [];
+                }
+                conversation.failedMessages.push(lastIndex);
+                
+                saveUserData();
                 
                 renderMessages();
                 
@@ -3464,7 +3733,7 @@
             
             const messages = [];
             
-            if (conversation.presetEnabled && conversation.presetContent) {
+            if (conversation.presetIndex !== -1 && conversation.presetContent) {
                 messages.push({
                     role: "system",
                     content: conversation.presetContent
@@ -3532,7 +3801,7 @@
         }
         
         function loadPresetSelect() {
-            presetSelect.innerHTML = '<option value="">选择预设指令</option>';
+            presetSelect.innerHTML = '<option value="-1" selected>不使用</option>';
             
             customPresets.forEach((preset, index) => {
                 const option = document.createElement('option');
@@ -3553,12 +3822,15 @@
             
             const selectedIndex = presetSelect.value;
             
-            if (selectedIndex === "") {
-                presetInstruction.value = conversation.presetContent || '';
+            if (selectedIndex === "-1") {
+                presetInstruction.value = '';
+                presetInstruction.disabled = true;
                 customPresetName.value = '自定义预设1';
-                presetToggle.checked = conversation.presetEnabled || false;
-                aiNickname.value = conversation.aiNickname || '';
-                userNickname.value = conversation.userNickname || '';
+                customPresetName.disabled = true;
+                aiNickname.value = '';
+                aiNickname.disabled = true;
+                userNickname.value = '';
+                userNickname.disabled = true;
                 updatePresetTokensDisplay();
                 return;
             }
@@ -3567,76 +3839,138 @@
             if (index >= 0 && index < customPresets.length) {
                 const preset = customPresets[index];
                 presetInstruction.value = preset.content || '';
+                presetInstruction.disabled = false;
                 customPresetName.value = preset.name || `自定义预设${index + 1}`;
-                presetToggle.checked = conversation.presetEnabled || false;
-                aiNickname.value = conversation.aiNickname || '';
-                userNickname.value = conversation.userNickname || '';
+                customPresetName.disabled = false;
+                aiNickname.value = preset.aiNickname || '';
+                aiNickname.disabled = false;
+                userNickname.value = preset.userNickname || '';
+                userNickname.disabled = false;
                 updatePresetTokensDisplay();
             }
+        }
+        
+        function handlePresetSelectChange() {
+            const selectedIndex = presetSelect.value;
+            
+            if (selectedIndex === "-1") {
+                presetInstruction.value = '';
+                presetInstruction.disabled = true;
+                customPresetName.value = '自定义预设1';
+                customPresetName.disabled = true;
+                aiNickname.value = '';
+                aiNickname.disabled = true;
+                userNickname.value = '';
+                userNickname.disabled = true;
+            } else {
+                const index = parseInt(selectedIndex);
+                if (index >= 0 && index < customPresets.length) {
+                    const preset = customPresets[index];
+                    presetInstruction.value = preset.content || '';
+                    presetInstruction.disabled = false;
+                    customPresetName.value = preset.name || `自定义预设${index + 1}`;
+                    customPresetName.disabled = false;
+                    aiNickname.value = preset.aiNickname || '';
+                    aiNickname.disabled = false;
+                    userNickname.value = preset.userNickname || '';
+                    userNickname.disabled = false;
+                }
+            }
+            
+            updatePresetTokensDisplay();
         }
         
         function updatePresetStatusDisplay() {
             const conversation = getCurrentConversation();
             if (!conversation) return;
             
-            if (conversation.presetEnabled) {
+            if (conversation.presetIndex === -1) {
+                presetStatusDisplay.textContent = '未启用';
+                presetStatusDisplay.className = 'nickname-status disabled';
+            } else {
                 presetStatusDisplay.textContent = '已启用';
                 presetStatusDisplay.className = 'nickname-status enabled';
-            } else {
-                presetStatusDisplay.textContent = '待机中';
-                presetStatusDisplay.className = 'nickname-status disabled';
             }
         }
         
         function createNewPreset() {
-            const defaultName = `自定义预设${customPresets.length + 1}`;
-            customPresetName.value = defaultName;
-            presetInstruction.value = '';
-            presetSelect.value = '';
-            updatePresetTokensDisplay();
+            presetSelect.value = "-1";
+            handlePresetSelectChange();
         }
         
         function savePreset() {
+            const conversation = getCurrentConversation();
+            if (!conversation) return;
+            
+            const selectedIndex = presetSelect.value;
+            
+            if (selectedIndex === "-1") {
+                conversation.presetIndex = -1;
+                conversation.presetContent = '';
+                conversation.aiNickname = '';
+                conversation.userNickname = '';
+                
+                saveUserData();
+                updatePresetStatusDisplay();
+                updateCostEstimate();
+                updateContextCostInfo();
+                renderMessages();
+                
+                showNotification('预设已禁用', 'success');
+                return;
+            }
+            
             const name = customPresetName.value.trim();
             const content = presetInstruction.value.trim();
+            const ai = aiNickname.value.trim();
+            const user = userNickname.value.trim();
             
             if (!name) {
                 showNotification('请输入预设名称', 'error');
                 return;
             }
             
-            const conversation = getCurrentConversation();
-            if (!conversation) return;
+            if ((ai && !user) || (!ai && user)) {
+                showNotification('昵称需同时设置或同时留空', 'error');
+                return;
+            }
             
-            const selectedIndex = presetSelect.value;
+            const index = parseInt(selectedIndex);
             
-            if (selectedIndex === "") {
-                const newPreset = {
-                    name: name,
-                    content: content
-                };
-                customPresets.push(newPreset);
-                const newIndex = customPresets.length - 1;
-                
-                conversation.presetContent = content;
-                conversation.presetIndex = newIndex;
-                conversation.presetEnabled = presetToggle.checked;
-                
-                saveUserData();
-                loadPresetSelect();
-                presetSelect.value = newIndex;
-            } else {
-                const index = parseInt(selectedIndex);
+            if (index >= 0 && index < customPresets.length) {
                 customPresets[index].name = name;
                 customPresets[index].content = content;
+                customPresets[index].aiNickname = ai;
+                customPresets[index].userNickname = user;
                 
-                conversation.presetContent = content;
                 conversation.presetIndex = index;
-                conversation.presetEnabled = presetToggle.checked;
+                conversation.presetContent = content;
+                conversation.aiNickname = ai;
+                conversation.userNickname = user;
                 
                 saveUserData();
                 loadPresetSelect();
                 presetSelect.value = index;
+                handlePresetSelectChange();
+            } else {
+                const newPreset = {
+                    name: name,
+                    content: content,
+                    aiNickname: ai,
+                    userNickname: user
+                };
+                customPresets.push(newPreset);
+                const newIndex = customPresets.length - 1;
+                
+                conversation.presetIndex = newIndex;
+                conversation.presetContent = content;
+                conversation.aiNickname = ai;
+                conversation.userNickname = user;
+                
+                saveUserData();
+                loadPresetSelect();
+                presetSelect.value = newIndex;
+                handlePresetSelectChange();
             }
             
             currentUser.customPresets = customPresets;
@@ -3645,13 +3979,14 @@
             updatePresetStatusDisplay();
             updateCostEstimate();
             updateContextCostInfo();
+            renderMessages();
             showNotification('预设已保存', 'success');
         }
         
         function deleteCurrentPreset() {
             const selectedIndex = presetSelect.value;
             
-            if (selectedIndex === "") {
+            if (selectedIndex === "-1") {
                 showNotification('请先选择要删除的预设', 'error');
                 return;
             }
@@ -3663,22 +3998,23 @@
             
             const conversation = getCurrentConversation();
             if (conversation && conversation.presetIndex === index) {
-                conversation.presetContent = '';
-                conversation.presetEnabled = false;
                 conversation.presetIndex = -1;
+                conversation.presetContent = '';
+                conversation.aiNickname = '';
+                conversation.userNickname = '';
             }
             
             currentUser.customPresets = customPresets;
             saveUserData();
             
             loadPresetSelect();
-            presetInstruction.value = '';
-            customPresetName.value = '自定义预设1';
-            presetToggle.checked = false;
+            presetSelect.value = "-1";
+            handlePresetSelectChange();
             
             updatePresetStatusDisplay();
             updateCostEstimate();
             updateContextCostInfo();
+            renderMessages();
             showNotification('预设已删除', 'success');
         }
         
@@ -3737,6 +4073,15 @@
         
         function deleteConversation(conversationId) {
             if (!confirm('确定要删除这个对话吗？')) return;
+            
+            let conversationTitle = '';
+            for (const mode in conversations) {
+                const conversation = conversations[mode].find(c => c.id === conversationId);
+                if (conversation) {
+                    conversationTitle = conversation.title;
+                    break;
+                }
+            }
             
             for (const mode in conversations) {
                 conversations[mode] = conversations[mode].filter(c => c.id !== conversationId);
@@ -3962,12 +4307,6 @@
             reader.readAsText(file);
         }
         
-        function updateBatterySummary() {
-            currentConversationCostElement.textContent = currentConversationCost.toFixed(3);
-            todayCostElement.textContent = todayCost.toFixed(3);
-            totalCostElement.textContent = totalCost.toFixed(3);
-        }
-        
         function exportConversation() {
             const conversation = getCurrentConversation();
             if (!conversation || conversation.messages.length === 0) {
@@ -3978,7 +4317,8 @@
             let exportContent = '';
             
             conversation.messages.forEach(message => {
-                exportContent += `${message.role === 'user' ? '用户' : 'AI'}: ${message.content}\n\n`;
+                const displayName = getDisplayName(message.role, conversation);
+                exportContent += `${displayName}: ${message.content}\n\n`;
             });
             
             const blob = new Blob([exportContent], { type: 'text/plain;charset=utf-8' });
@@ -4089,6 +4429,94 @@
             const sizes = ['B', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function loadBatteryDetails() {
+            if (!currentUser) return;
+            
+            batteryDetailsTotalCost.textContent = totalCost.toFixed(3);
+            
+            loadRechargeRecords();
+            loadConsumptionRecords();
+        }
+        
+        function loadRechargeRecords() {
+            rechargeRecords.innerHTML = '';
+            
+            if (!currentUser.rechargeRecords || currentUser.rechargeRecords.length === 0) {
+                rechargeRecords.innerHTML = '<div style="color: var(--text-secondary); text-align: center; padding: 20px;">暂无充值记录</div>';
+                return;
+            }
+            
+            currentUser.rechargeRecords.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            currentUser.rechargeRecords.forEach(record => {
+                const item = document.createElement('div');
+                item.className = 'recharge-record-item';
+                
+                item.innerHTML = `
+                    <div class="recharge-record-info">
+                        <div class="recharge-record-title">电池充值</div>
+                        <div class="recharge-record-time">${formatDateTime(new Date(record.timestamp))}</div>
+                    </div>
+                    <div class="recharge-record-amount">+${record.amount.toFixed(3)}</div>
+                `;
+                
+                rechargeRecords.appendChild(item);
+            });
+        }
+        
+        function loadConsumptionRecords() {
+            consumptionRecords.innerHTML = '';
+            
+            if (!currentUser.consumptionRecords || currentUser.consumptionRecords.length === 0) {
+                consumptionRecords.innerHTML = '<div style="color: var(--text-secondary); text-align: center; padding: 20px;">暂无消耗记录</div>';
+                return;
+            }
+            
+            currentUser.consumptionRecords.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            currentUser.consumptionRecords.forEach(record => {
+                const item = document.createElement('div');
+                item.className = 'consumption-record-item';
+                
+                item.innerHTML = `
+                    <div class="consumption-record-info">
+                        <div class="consumption-record-title">${record.conversationTitle}</div>
+                        <div class="consumption-record-time">${formatDateTime(new Date(record.timestamp))}</div>
+                    </div>
+                    <div class="consumption-record-amount">-${record.amount.toFixed(3)}</div>
+                    <div class="consumption-record-actions">
+                        <button class="btn btn-danger btn-sm delete-consumption-btn" data-id="${record.id}" style="padding: 4px 8px; font-size: 0.8rem;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                consumptionRecords.appendChild(item);
+            });
+            
+            document.querySelectorAll('.delete-consumption-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const recordId = parseInt(this.dataset.id);
+                    deleteConsumptionRecord(recordId);
+                });
+            });
+        }
+        
+        function deleteConsumptionRecord(recordId) {
+            if (!confirm('确定要删除这条消耗记录吗？')) return;
+            
+            if (!currentUser.consumptionRecords) return;
+            
+            const recordIndex = currentUser.consumptionRecords.findIndex(r => r.id === recordId);
+            if (recordIndex === -1) return;
+            
+            currentUser.consumptionRecords.splice(recordIndex, 1);
+            saveUserData();
+            
+            loadConsumptionRecords();
+            showNotification('消耗记录已删除', 'success');
         }
     </script>
 </body>
