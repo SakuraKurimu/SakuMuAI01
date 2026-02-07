@@ -185,9 +185,63 @@
             gap: 12px;
         }
         
+        .app-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        
         .app-logo i {
             color: var(--primary-color);
             font-size: 1.8rem;
+        }
+        
+        .cube-container {
+            width: 50px;
+            height: 50px;
+            perspective: 800px;
+            transform-style: preserve-3d;
+        }
+        
+        .cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotateCube 8s infinite linear;
+        }
+        
+        .cube-face {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            backface-visibility: visible;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .cube-face.front { transform: translateZ(20px); }
+        .cube-face.back { transform: rotateY(180deg) translateZ(20px); }
+        .cube-face.right { transform: rotateY(90deg) translateZ(20px); }
+        .cube-face.left { transform: rotateY(-90deg) translateZ(20px); }
+        .cube-face.top { transform: rotateX(90deg) translateZ(20px); }
+        .cube-face.bottom { transform: rotateX(-90deg) translateZ(20px); }
+        
+        @keyframes rotateCube {
+            0% { transform: rotateX(0) rotateY(0); }
+            25% { transform: rotateX(90deg) rotateY(90deg); }
+            50% { transform: rotateX(180deg) rotateY(180deg); }
+            75% { transform: rotateX(270deg) rotateY(270deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
         }
         
         .app-name {
@@ -197,6 +251,26 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+        }
+        
+        .app-version {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            font-weight: 300;
+        }
+        
+        .app-copyright {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            font-weight: 300;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .app-copyright:hover {
+            color: var(--primary-color);
         }
         
         .sidebar-content {
@@ -716,6 +790,7 @@
             padding: 20px;
             border-top: 1px solid var(--border-color);
             background-color: var(--background-card);
+            position: relative;
         }
         
         .cost-estimate {
@@ -767,9 +842,10 @@
             background-color: var(--background-sidebar);
             color: var(--text-primary);
             font-size: 1rem;
-            resize: none;
-            min-height: 50px;
-            max-height: 150px;
+            resize: vertical;
+            min-height: 60px;
+            max-height: 200px;
+            width: 100%;
         }
         
         .message-input:focus {
@@ -1217,9 +1293,9 @@
         .user-info {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 15px;
-            border-radius: 8px;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 10px;
             background-color: rgba(255, 255, 255, 0.05);
             cursor: pointer;
             transition: background-color 0.2s ease;
@@ -1230,8 +1306,8 @@
         }
         
         .user-avatar {
-            width: 36px;
-            height: 36px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--primary-color), #ec4899);
             display: flex;
@@ -1239,20 +1315,41 @@
             justify-content: center;
             font-weight: 700;
             color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
         }
         
-        .user-details {
+        .user-avatar:hover {
+            transform: scale(1.05);
+        }
+        
+        .user-avatar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
             flex: 1;
         }
         
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            text-align: center;
+        }
+        
         .user-name {
-            font-weight: 500;
-            font-size: 0.9rem;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-primary);
         }
         
         .user-email {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-secondary);
+            opacity: 0.8;
         }
         
         .logout-btn {
@@ -1364,6 +1461,10 @@
         
         .battery-details-modal .modal-content {
             max-width: 600px;
+            max-height: 70vh;
+            height: 600px;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
         
         .battery-tabs {
@@ -1469,6 +1570,64 @@
             color: var(--primary-color);
             font-size: 1.1rem;
         }
+        
+        .ai-first-button,
+        .continue-button {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            background-color: var(--info-color);
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        
+        .ai-first-button:hover,
+        .continue-button:hover {
+            background-color: #2563eb;
+        }
+        
+        .ai-first-button:disabled,
+        .continue-button:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+        }
+        
+        .input-buttons {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            align-items: flex-end;
+        }
+        
+        .message-input-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        .resize-handle {
+            position: absolute;
+            top: -5px;
+            left: 0;
+            right: 0;
+            height: 10px;
+            cursor: ns-resize;
+            background-color: transparent;
+            z-index: 10;
+        }
+        
+        .resize-handle:hover {
+            background-color: rgba(124, 58, 237, 0.2);
+        }
+        
+        .resize-handle.active {
+            background-color: rgba(124, 58, 237, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -1544,21 +1703,38 @@
         <div class="sidebar active" id="sidebar">
             <div class="sidebar-header">
                 <div class="app-logo">
-                    <i class="fas fa-robot"></i>
-                    <span class="app-name">樱梦DX AI</span>
+                    <div class="cube-container">
+                        <div class="cube">
+                            <div class="cube-face front">樱</div>
+                            <div class="cube-face back">梦</div>
+                            <div class="cube-face right">D</div>
+                            <div class="cube-face left">X</div>
+                            <div class="cube-face top">A</div>
+                            <div class="cube-face bottom">I</div>
+                        </div>
+                    </div>
+                    <div class="app-info">
+                        <span class="app-name">樱梦DX AI</span>
+                        <div class="app-version">SakuMuAI.Ver.1.5</div>
+                        <div class="app-copyright" id="copyrightInfo">樱梦AI © 2026 | Made by 樱玖璃梦</div>
+                    </div>
                 </div>
             </div>
             
             <div class="user-info" id="userInfo">
-                <div class="user-avatar" id="userAvatar">U</div>
-                <div class="user-details">
-                    <div class="user-name" id="userName">用户</div>
-                    <div class="user-email" id="userEmail">user@example.com</div>
+                <div class="user-avatar-container">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-details">
+                        <div class="user-name" id="userName">用户</div>
+                        <div class="user-email" id="userEmail">user@example.com</div>
+                    </div>
                 </div>
                 <button class="logout-btn" id="logoutBtn" title="退出登录">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
             </div>
+            
+            <input type="file" id="avatarUploadInput" accept="image/*" style="display: none;">
             
             <div class="sidebar-content">
                 <div class="mode-section">
@@ -1713,11 +1889,24 @@
                     
                     <div class="input-container">
                         <div class="input-area">
-                            <textarea class="message-input" id="messageInput" placeholder="输入消息..."></textarea>
-                            <button class="send-button" id="sendButton">
-                                <i class="fas fa-paper-plane"></i>
-                                <span>发送</span>
-                            </button>
+                            <div class="input-buttons">
+                                <button class="ai-first-button" id="aiFirstButton" style="display: none;">
+                                    <i class="fas fa-microphone-alt"></i>
+                                    <span>AI先说</span>
+                                </button>
+                                <button class="continue-button" id="continueButton" style="display: none;">
+                                    <i class="fas fa-forward"></i>
+                                    <span>继续</span>
+                                </button>
+                                <div class="message-input-container">
+                                    <div class="resize-handle" id="resizeHandle"></div>
+                                    <textarea class="message-input" id="messageInput" placeholder="输入消息..."></textarea>
+                                </div>
+                                <button class="send-button" id="sendButton">
+                                    <i class="fas fa-paper-plane"></i>
+                                    <span>发送</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1829,6 +2018,13 @@
                 <button class="modal-close" id="closeBatteryDetailsModal">&times;</button>
             </div>
             <div class="modal-body">
+                <div class="battery-summary" style="margin-bottom: 20px; padding: 15px; background-color: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+                    <div class="battery-summary-item battery-summary-total">
+                        <span>总消耗:</span>
+                        <span id="batteryDetailsTotalCost">0.000</span>
+                    </div>
+                </div>
+                
                 <div class="battery-tabs">
                     <div class="battery-tab active" data-tab="recharge">充值记录</div>
                     <div class="battery-tab" data-tab="consumption">对话消耗</div>
@@ -1841,13 +2037,6 @@
                 
                 <div class="battery-tab-content" id="consumptionTab">
                     <div id="consumptionRecords">
-                    </div>
-                </div>
-                
-                <div class="battery-summary">
-                    <div class="battery-summary-item battery-summary-total">
-                        <span>总消耗:</span>
-                        <span id="batteryDetailsTotalCost">0.000</span>
                     </div>
                 </div>
             </div>
@@ -2087,6 +2276,8 @@
         const rechargeRecords = document.getElementById('rechargeRecords');
         const consumptionRecords = document.getElementById('consumptionRecords');
         const batteryDetailsTotalCost = document.getElementById('batteryDetailsTotalCost');
+        const aiFirstButton = document.getElementById('aiFirstButton');
+        const continueButton = document.getElementById('continueButton');
         
         function estimateTextTokens(text) {
             if (!text || typeof text !== 'string') return 0;
@@ -2232,6 +2423,28 @@
             presetTokensDisplay.textContent = `(tokens: ${tokens})`;
         }
         
+        function updateActionButtons() {
+            const conversation = getCurrentConversation();
+            if (!conversation) {
+                aiFirstButton.style.display = 'none';
+                continueButton.style.display = 'none';
+                return;
+            }
+            
+            const messageCount = conversation.messages.length;
+            
+            if (messageCount === 0) {
+                aiFirstButton.style.display = 'flex';
+                continueButton.style.display = 'none';
+            } else {
+                aiFirstButton.style.display = 'none';
+                continueButton.style.display = 'flex';
+            }
+            
+            aiFirstButton.disabled = battery <= 0;
+            continueButton.disabled = battery <= 0;
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             checkLoginStatus();
             setupEventListeners();
@@ -2336,6 +2549,65 @@
             
             logoutBtn.addEventListener('click', logoutUser);
             
+            userAvatar.addEventListener('click', function() {
+                avatarUploadInput.click();
+            });
+            
+            avatarUploadInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    
+                    if (!file.type.startsWith('image/')) {
+                        alert('请选择有效的图片文件！');
+                        return;
+                    }
+                    
+                    const img = new Image();
+                    img.onload = function() {
+                        const width = this.width;
+                        const height = this.height;
+                        
+                        if (Math.abs(width - height) / Math.max(width, height) > 0.2) {
+                            if (!confirm('检测到图片不是正方形比例（1:1），上传后可能会被裁剪。建议使用正方形图片以获得最佳效果。\n\n是否继续上传？')) {
+                                return;
+                            }
+                        }
+                        
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        canvas.width = 48;
+                        canvas.height = 48;
+                        
+                        const scale = Math.max(48 / width, 48 / height);
+                        const scaledWidth = width * scale;
+                        const scaledHeight = height * scale;
+                        const offsetX = (scaledWidth - 48) / 2;
+                        const offsetY = (scaledHeight - 48) / 2;
+                        
+                        ctx.drawImage(img, -offsetX, -offsetY, scaledWidth, scaledHeight);
+                        
+                        const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+                        userAvatar.style.backgroundImage = `url(${dataURL})`;
+                        userAvatar.style.backgroundSize = 'cover';
+                        userAvatar.style.backgroundPosition = 'center';
+                        userAvatar.textContent = '';
+                        
+                        const currentUser = JSON.parse(localStorage.getItem('sakuraAI_currentUser') || '{}');
+                        currentUser.avatar = dataURL;
+                        localStorage.setItem('sakuraAI_currentUser', JSON.stringify(currentUser));
+                        
+                        alert('头像上传成功！');
+                    };
+                    
+                    img.onerror = function() {
+                        alert('图片加载失败，请选择有效的图片文件！');
+                    };
+                    
+                    img.src = URL.createObjectURL(file);
+                }
+            });
+            
             rechargeBtn.addEventListener('click', () => {
                 rechargeModal.classList.add('active');
                 updateCurrentTime();
@@ -2375,6 +2647,44 @@
             
             messageInput.addEventListener('input', function() {
                 updateCostEstimate();
+            });
+            
+            const resizeHandle = document.getElementById('resizeHandle');
+            let isResizing = false;
+            let startY = 0;
+            let startHeight = 0;
+            
+            resizeHandle.addEventListener('mousedown', function(e) {
+                isResizing = true;
+                startY = e.clientY;
+                startHeight = messageInput.offsetHeight;
+                resizeHandle.classList.add('active');
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isResizing) return;
+                
+                const deltaY = startY - e.clientY;
+                const newHeight = Math.max(60, Math.min(400, startHeight + deltaY));
+                
+                messageInput.style.height = newHeight + 'px';
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isResizing) {
+                    isResizing = false;
+                    resizeHandle.classList.remove('active');
+                    
+                    localStorage.setItem('messageInputHeight', messageInput.style.height);
+                }
+            });
+            
+            window.addEventListener('load', function() {
+                const savedHeight = localStorage.getItem('messageInputHeight');
+                if (savedHeight) {
+                    messageInput.style.height = savedHeight;
+                }
             });
             
             closePresetModal.addEventListener('click', () => presetModal.classList.remove('active'));
@@ -2505,6 +2815,9 @@
                     }
                 });
             });
+            
+            aiFirstButton.addEventListener('click', aiFirst);
+            continueButton.addEventListener('click', continueConversation);
         }
         
         function handleKeyboardShortcuts(e) {
@@ -2713,9 +3026,18 @@
         function updateUserUI() {
             if (!currentUser) return;
             
-            userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
             userName.textContent = currentUser.username;
             userEmail.textContent = currentUser.email;
+            
+            if (currentUser.avatar) {
+                userAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
+                userAvatar.style.backgroundSize = 'cover';
+                userAvatar.style.backgroundPosition = 'center';
+                userAvatar.textContent = '';
+            } else {
+                userAvatar.style.backgroundImage = '';
+                userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
+            }
             
             updateBatteryUI();
         }
@@ -2730,9 +3052,11 @@
             }
             
             sendButton.disabled = battery <= 0;
+            aiFirstButton.disabled = battery <= 0;
+            continueButton.disabled = battery <= 0;
             messageInput.placeholder = battery <= 0 ? '电池不足，请充值后使用' : '输入消息...';
         }
-          
+        
         function consumeBattery(cost, conversationId = null, conversationTitle = null) {
             battery -= cost;
             
@@ -3024,6 +3348,7 @@
             currentConversationCost = 0;
             updateCostEstimate();
             updatePresetStatusDisplay();
+            updateActionButtons();
         }
         
         function switchConversation(conversationId) {
@@ -3046,6 +3371,7 @@
                 currentConversationCost = conversation.totalCost || 0;
                 updateCostEstimate();
                 updatePresetStatusDisplay();
+                updateActionButtons();
                 
                 if (currentMode === 'document' && conversation.document) {
                     documentInfo.innerHTML = `
@@ -3289,19 +3615,15 @@
             if (!conversation || index >= conversation.messages.length) return;
             
             const message = conversation.messages[index];
-            const costToRefund = message.batteryCost || 0;
             
             conversation.messages.splice(index, 1);
-            
-            if (costToRefund > 0) {
-                rechargeBatteryFunc(costToRefund);
-            }
             
             conversation.updatedAt = new Date().toISOString();
             
             saveUserData();
             
             renderMessages();
+            updateActionButtons();
             showNotification('消息已删除', 'success');
         }
         
@@ -3358,6 +3680,178 @@
             return html;
         }
         
+        async function aiFirst() {
+            const conversation = getCurrentConversation();
+            if (!conversation) return;
+            
+            if (apis.length === 0) {
+                showNotification('请先设置API密钥', 'error');
+                return;
+            }
+            
+            if (battery <= 0) {
+                showNotification('电池不足，请充值后使用', 'error');
+                return;
+            }
+            
+            const aiMessageElement = document.createElement('div');
+            aiMessageElement.className = 'message ai-message';
+            aiMessageElement.innerHTML = `
+                <div class="message-header">
+                    <span>${conversation.aiNickname || 'AI'}</span>
+                    <span>正在思考...</span>
+                </div>
+                <div class="loading">
+                    <div class="loading-dots">
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                    </div>
+                </div>
+            `;
+            messagesContainer.appendChild(aiMessageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            try {
+                const costEstimate = calculateBatteryCostByTokens(conversation, "");
+                
+                if (battery - costEstimate.cost < 0) {
+                    aiMessageElement.remove();
+                    showNotification('电池不足，请充值后使用', 'error');
+                    return;
+                }
+                
+                const aiResponse = await getAIResponse(conversation, "");
+                
+                aiMessageElement.remove();
+                
+                const finalCost = calculateBatteryCostByTokens(conversation, "", aiResponse);
+                
+                const aiMessage = {
+                    role: 'assistant',
+                    content: aiResponse,
+                    timestamp: new Date().toISOString(),
+                    wordCount: aiResponse.length,
+                    batteryCost: calculateBatteryCostByTokensForText(aiResponse)
+                };
+                
+                conversation.messages.push(aiMessage);
+                conversation.updatedAt = new Date().toISOString();
+                conversation.isNew = false;
+                
+                currentConversationCost += finalCost.cost;
+                conversation.totalCost = currentConversationCost;
+                
+                consumeBattery(finalCost.cost, conversation.id, conversation.title);
+                
+                saveUserData();
+                
+                renderMessages();
+                updateRecentConversations();
+                updateActionButtons();
+                
+                updateCostEstimate();
+                
+                showNotification('AI已开始对话', 'success');
+                
+            } catch (error) {
+                console.error('获取AI响应失败:', error);
+                
+                aiMessageElement.remove();
+                showNotification(`AI先说失败: ${error.message}`, 'error');
+            }
+        }
+        
+        async function continueConversation() {
+            const conversation = getCurrentConversation();
+            if (!conversation || conversation.messages.length === 0) return;
+            
+            if (apis.length === 0) {
+                showNotification('请先设置API密钥', 'error');
+                return;
+            }
+            
+            if (battery <= 0) {
+                showNotification('电池不足，请充值后使用', 'error');
+                return;
+            }
+            
+            const aiMessageElement = document.createElement('div');
+            aiMessageElement.className = 'message ai-message';
+            aiMessageElement.innerHTML = `
+                <div class="message-header">
+                    <span>${conversation.aiNickname || 'AI'}</span>
+                    <span>正在继续...</span>
+                </div>
+                <div class="loading">
+                    <div class="loading-dots">
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                    </div>
+                </div>
+            `;
+            messagesContainer.appendChild(aiMessageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            try {
+                const lastMessage = conversation.messages[conversation.messages.length - 1];
+                const continuePrompt = "请继续你刚才的回复，生成更多相关内容。";
+                
+                const tempConversation = JSON.parse(JSON.stringify(conversation));
+                tempConversation.messages.push({
+                    role: 'user',
+                    content: continuePrompt,
+                    timestamp: new Date().toISOString()
+                });
+                
+                const costEstimate = calculateBatteryCostByTokens(tempConversation, continuePrompt);
+                
+                if (battery - costEstimate.cost < 0) {
+                    aiMessageElement.remove();
+                    showNotification('电池不足，请充值后使用', 'error');
+                    return;
+                }
+                
+                const aiResponse = await getAIResponse(tempConversation, continuePrompt);
+                
+                aiMessageElement.remove();
+                
+                const finalCost = calculateBatteryCostByTokens(tempConversation, continuePrompt, aiResponse);
+                
+                const aiMessage = {
+                    role: 'assistant',
+                    content: aiResponse,
+                    timestamp: new Date().toISOString(),
+                    wordCount: aiResponse.length,
+                    batteryCost: calculateBatteryCostByTokensForText(aiResponse)
+                };
+                
+                conversation.messages.push(aiMessage);
+                conversation.updatedAt = new Date().toISOString();
+                
+                currentConversationCost += finalCost.cost;
+                conversation.totalCost = currentConversationCost;
+                
+                consumeBattery(finalCost.cost, conversation.id, conversation.title);
+                
+                saveUserData();
+                
+                renderMessages();
+                updateRecentConversations();
+                
+                updateCostEstimate();
+                
+                showNotification('AI已继续对话', 'success');
+                
+            } catch (error) {
+                console.error('继续AI响应失败:', error);
+                
+                aiMessageElement.remove();
+                showNotification(`继续失败: ${error.message}`, 'error');
+            }
+        }
+        
         async function regenerateAIResponse(e) {
             const index = parseInt(e.target.dataset.index);
             const conversation = getCurrentConversation();
@@ -3367,8 +3861,27 @@
             const messageToRegenerate = conversation.messages[index];
             if (messageToRegenerate.role !== 'assistant') return;
             
-            const previousUserMessage = index > 0 ? conversation.messages[index - 1] : null;
-            if (!previousUserMessage || previousUserMessage.role !== 'user') {
+            let userMessageIndex = -1;
+            let userMessageContent = '';
+            
+            if (index > 0 && conversation.messages[index - 1].role === 'user') {
+                userMessageIndex = index - 1;
+                userMessageContent = conversation.messages[index - 1].content;
+            } else {
+                for (let i = 0; i < index; i++) {
+                    if (conversation.messages[i].role === 'user') {
+                        userMessageIndex = i;
+                        userMessageContent = conversation.messages[i].content;
+                        break;
+                    }
+                }
+                
+                if (userMessageIndex === -1) {
+                    userMessageContent = conversation.presetMessage || '';
+                }
+            }
+            
+            if (!userMessageContent && index !== 0) {
                 showNotification('找不到对应的用户消息', 'error');
                 return;
             }
@@ -3416,7 +3929,7 @@
                 const tempConversation = JSON.parse(JSON.stringify(conversation));
                 tempConversation.messages = tempConversation.messages.slice(0, index);
                 
-                const costEstimate = calculateBatteryCostByTokens(tempConversation, previousUserMessage.content);
+                const costEstimate = calculateBatteryCostByTokens(tempConversation, userMessageContent);
                 
                 if (battery - costEstimate.cost < 0) {
                     aiMessageElement.remove();
@@ -3427,14 +3940,14 @@
                     return;
                 }
                 
-                const aiResponse = await getAIResponse(tempConversation, previousUserMessage.content);
+                const aiResponse = await getAIResponse(tempConversation, userMessageContent);
                 
                 aiMessageElement.remove();
                 if (originalMessageElement) {
                     originalMessageElement.remove();
                 }
                 
-                const finalCost = calculateBatteryCostByTokens(tempConversation, previousUserMessage.content, aiResponse);
+                const finalCost = calculateBatteryCostByTokens(tempConversation, userMessageContent, aiResponse);
                 
                 const originalAICost = conversation.messages[index].batteryCost || 0;
                 const newAICost = calculateBatteryCostByTokensForText(aiResponse);
@@ -3486,40 +3999,71 @@
             const aiMessage = conversation.messages[index];
             if (aiMessage.role !== 'assistant') return;
             
-            const userMessageIndex = index > 0 ? index - 1 : -1;
-            if (userMessageIndex === -1 || conversation.messages[userMessageIndex].role !== 'user') {
+            let userMessageIndex = -1;
+            let userMessage = null;
+            
+            if (index > 0 && conversation.messages[index - 1].role === 'user') {
+                userMessageIndex = index - 1;
+                userMessage = conversation.messages[index - 1];
+            } else {
+                for (let i = 0; i < index; i++) {
+                    if (conversation.messages[i].role === 'user') {
+                        userMessageIndex = i;
+                        userMessage = conversation.messages[i];
+                        break;
+                    }
+                }
+            }
+            
+            if (!userMessage && userMessageIndex !== -1) {
                 showNotification('找不到对应的用户消息', 'error');
                 return;
             }
             
-            const userMessage = conversation.messages[userMessageIndex];
-            
-            if (confirm('确定要撤回这一轮对话吗？用户消息将复制到输入框中。')) {
-                const userMessageContent = userMessage.content;
-                
-                const aiCost = aiMessage.batteryCost || 0;
-                const userCost = userMessage.batteryCost || 0;
-                const totalCostToRefund = aiCost + userCost;
-                
-                conversation.messages.splice(userMessageIndex, 2);
-                conversation.updatedAt = new Date().toISOString();
-                
-                currentConversationCost -= totalCostToRefund;
-                conversation.totalCost = currentConversationCost;
-                
-                rechargeBatteryFunc(totalCostToRefund);
-                
-                saveUserData();
-                
-                messageInput.value = userMessageContent;
-                messageInput.focus();
-                
-                renderMessages();
-                updateRecentConversations();
-                
-                updateCostEstimate();
-                
-                showNotification('对话已撤回，用户消息已复制到输入框', 'success');
+            if (userMessageIndex === -1) {
+                if (confirm('确定要撤回这条AI消息吗？')) {
+                    conversation.messages.splice(index, 1);
+                    conversation.updatedAt = new Date().toISOString();
+                    
+                    currentConversationCost -= (aiMessage.batteryCost || 0);
+                    conversation.totalCost = currentConversationCost;
+                    
+                    saveUserData();
+                    
+                    messageInput.value = '';
+                    messageInput.focus();
+                    
+                    renderMessages();
+                    updateRecentConversations();
+                    updateActionButtons();
+                    
+                    updateCostEstimate();
+                    
+                    showNotification('AI消息已撤回', 'success');
+                }
+            } else {
+                if (confirm('确定要撤回这一轮对话吗？用户消息将复制到输入框中。')) {
+                    const userMessageContent = userMessage.content;
+                    
+                    conversation.messages.splice(userMessageIndex, 2);
+                    conversation.updatedAt = new Date().toISOString();
+                    
+                    currentConversationCost -= (aiMessage.batteryCost || 0) + (userMessage.batteryCost || 0);
+                    conversation.totalCost = currentConversationCost;
+                    
+                    saveUserData();
+                    
+                    messageInput.value = userMessageContent;
+                    messageInput.focus();
+                    
+                    renderMessages();
+                    updateRecentConversations();
+                    updateActionButtons();
+                    
+                    updateCostEstimate();
+                    
+                    showNotification('对话已撤回，用户消息已复制到输入框', 'success');
+                }
             }
         }
         
@@ -3638,6 +4182,7 @@
             conversation.updatedAt = new Date().toISOString();
             
             renderMessages();
+            updateActionButtons();
             
             const aiMessageElement = document.createElement('div');
             aiMessageElement.className = 'message ai-message';
@@ -3666,6 +4211,7 @@
                     conversation.messages.pop();
                     
                     renderMessages();
+                    updateActionButtons();
                     
                     showNotification('电池不足，请充值后使用', 'error');
                     return;
@@ -3699,6 +4245,7 @@
                 
                 renderMessages();
                 updateRecentConversations();
+                updateActionButtons();
                 
                 updateCostEstimate();
                 
@@ -3716,6 +4263,7 @@
                 saveUserData();
                 
                 renderMessages();
+                updateActionButtons();
                 
                 showNotification(`API调用失败: ${error.message}`, 'error');
             }
@@ -3894,8 +4442,41 @@
         }
         
         function createNewPreset() {
-            presetSelect.value = "-1";
+            const conversation = getCurrentConversation();
+            if (!conversation) return;
+            
+            const newPresetIndex = customPresets.length;
+            const newPresetName = `自定义预设${newPresetIndex + 1}`;
+            
+            const newPreset = {
+                name: newPresetName,
+                content: '',
+                aiNickname: '',
+                userNickname: ''
+            };
+            
+            customPresets.push(newPreset);
+            
+            currentUser.customPresets = customPresets;
+            saveUserData();
+            
+            loadPresetSelect();
+            presetSelect.value = newPresetIndex;
+            
             handlePresetSelectChange();
+            
+            conversation.presetIndex = newPresetIndex;
+            conversation.presetContent = '';
+            conversation.aiNickname = '';
+            conversation.userNickname = '';
+            
+            saveUserData();
+            updatePresetStatusDisplay();
+            updateCostEstimate();
+            updateContextCostInfo();
+            renderMessages();
+            
+            showNotification('已创建新预设', 'success');
         }
         
         function savePreset() {
@@ -4518,6 +5099,116 @@
             loadConsumptionRecords();
             showNotification('消耗记录已删除', 'success');
         }
+        
+        const copyrightInfo = document.getElementById('copyrightInfo');
+        const creditsModal = document.createElement('div');
+        creditsModal.className = 'modal';
+        creditsModal.id = 'creditsModal';
+        creditsModal.style.display = 'none';
+        creditsModal.innerHTML = `
+            <div class="modal-content" style="max-width: 800px;">
+                <div class="modal-header">
+                    <h3 class="modal-title">樱梦DX AI 开发与感谢</h3>
+                    <button class="modal-close" id="closeCreditsModal">&times;</button>
+                </div>
+                <div class="modal-body" style="max-height: 600px; overflow-y: auto;">
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 15px;">🏆 开发核心</h4>
+                        <p style="margin-bottom: 10px;">全栈开发：樱玖璃梦</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 15px;">🤖 功能模块开发</h4>
+                        <p style="margin-bottom: 5px;">AI对话引擎：樱玖璃梦</p>
+                        <p style="margin-bottom: 5px;">用户界面设计：樱玖璃梦</p>
+                        <p style="margin-bottom: 5px;">后端架构：樱玖璃梦</p>
+                        <p style="margin-bottom: 5px;">数据处理：樱玖璃梦</p>
+                        <p style="margin-bottom: 5px;">系统集成：樱玖璃梦</p>
+                        <p style="margin-bottom: 5px;">大模型数据提供：DeepSeek</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 15px;">🧪 测试与反馈</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
+                            <span>007超级内鬼</span>
+                            <span>2333333</span>
+                            <span>404NotFound</span>
+                            <span>888888</span>
+                            <span>95274697</span>
+                            <span>114514哼哼啊</span>
+                            <span>AAA开发板设计定制</span>
+                            <span>Daylights</span>
+                            <span>Eyye</span>
+                            <span>Fishover</span>
+                            <span>Labyrintix</span>
+                            <span>NekoChan</span>
+                            <span>PYJY</span>
+                            <span>Quantum</span>
+                            <span>RelicError</span>
+                            <span>SBGA</span>
+                            <span>SkyApple</span>
+                            <span>Stellar</span>
+                            <span>迟毕</span>
+                            <span>根本布诗人</span>
+                            <span>珂萝</span>
+                            <span>枯木化羽</span>
+                            <span>困意批发的吴总</span>
+                            <span>牢鸽不老</span>
+                            <span>墨</span>
+                            <span>噫！我中了！</span>
+                            <span>盐巴</span>
+                            <span>我写的程序我都看不懂</span>
+                            <span>十岚</span>
+                            <span>失败的罗德岛博士</span>
+                            <span>心爱软萌奶糖</span>
+                            <span>二代目青眼白龙</span>
+                            <span>几把羊刀</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 15px;">💝 特别致谢</h4>
+                        <p style="margin-bottom: 5px;">无条件给予支持和鼓励的家人</p>
+                        <p style="margin-bottom: 5px;">提供宝贵建议的群友和朋友</p>
+                        <p style="margin-bottom: 5px;">在开源社区提供贡献的开发者</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: var(--primary-color); margin-bottom: 15px;">📜 项目信息</h4>
+                        <p style="margin-bottom: 5px;">樱梦DX AI</p>
+                        <p style="margin-bottom: 5px;">从构思到实现</p>
+                        <p style="margin-bottom: 5px;">创造温暖而有用的AI助手</p>
+                        <p style="margin-bottom: 5px;">持续优化，服务更多用户</p>
+                    </div>
+                    
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 15px;">
+                        <p style="font-style: italic; color: var(--text-secondary);">
+                            结语<br>
+                            感谢每一位测试人员的耐心与支持，樱梦DX AI的每一步成长都离不开你们的帮助！
+                        </p>
+                        <p style="text-align: right; margin-top: 10px; color: var(--primary-color);">
+                            开发：樱玖璃梦（飞哥）
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(creditsModal);
+        
+        copyrightInfo.addEventListener('click', function() {
+            creditsModal.style.display = 'flex';
+        });
+        
+        document.getElementById('closeCreditsModal').addEventListener('click', function() {
+            creditsModal.style.display = 'none';
+        });
+        
+        creditsModal.addEventListener('click', function(e) {
+            if (e.target === creditsModal) {
+                creditsModal.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>
