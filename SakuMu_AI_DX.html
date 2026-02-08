@@ -402,6 +402,43 @@
             border-radius: 5px;
         }
         
+        .time-card-info {
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .time-card-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .time-card-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .time-card-item i {
+            color: var(--secondary-color);
+            width: 16px;
+            text-align: center;
+        }
+        
+        .time-card-item span:first-of-type {
+            color: var(--text-secondary);
+            min-width: 60px;
+        }
+        
+        .time-card-item span:last-of-type {
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+        
         .btn-success {
             background-color: var(--secondary-color);
             color: white;
@@ -1467,90 +1504,7 @@
             overflow-x: hidden;
         }
         
-        .battery-tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .battery-tab {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: all 0.3s ease;
-            border-bottom: 3px solid transparent;
-        }
-        
-        .battery-tab.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-        }
-        
-        .battery-tab-content {
-            display: none;
-        }
-        
-        .battery-tab-content.active {
-            display: block;
-        }
-        
-        .recharge-record-item,
-        .consumption-record-item {
-            padding: 12px 15px;
-            border-radius: 8px;
-            background-color: rgba(255, 255, 255, 0.03);
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .recharge-record-info {
-            flex: 1;
-        }
-        
-        .recharge-record-title {
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-        
-        .recharge-record-time {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-        
-        .recharge-record-amount {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--secondary-color);
-        }
-        
-        .consumption-record-info {
-            flex: 1;
-        }
-        
-        .consumption-record-title {
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-        
-        .consumption-record-time {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-        
-        .consumption-record-amount {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--danger-color);
-        }
-        
-        .consumption-record-actions {
-            display: flex;
-            gap: 8px;
-        }
+
         
         .battery-summary {
             margin-top: 20px;
@@ -1569,6 +1523,40 @@
             font-weight: 700;
             color: var(--primary-color);
             font-size: 1.1rem;
+        }
+        
+        .battery-summary-remaining {
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+        
+        .time-card-summary-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .time-card-summary-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .time-card-summary-item i {
+            color: var(--secondary-color);
+            width: 16px;
+            text-align: center;
+        }
+        
+        .time-card-summary-item span:nth-child(2) {
+            color: var(--text-secondary);
+            min-width: 70px;
+        }
+        
+        .time-card-summary-item span:last-child {
+            color: var(--secondary-color);
+            font-weight: 600;
         }
         
         .ai-first-button,
@@ -1715,7 +1703,7 @@
                     </div>
                     <div class="app-info">
                         <span class="app-name">樱梦DX AI</span>
-                        <div class="app-version">SakuMuAI.Ver.1.5</div>
+                        <div class="app-version">SakuMuAI.Ver.1.6</div>
                         <div class="app-copyright" id="copyrightInfo">樱梦AI © 2026 | Made by 樱玖璃梦</div>
                     </div>
                 </div>
@@ -1779,6 +1767,20 @@
                 
                 <div class="current-time" id="currentTime"></div>
                 
+
+                <div class="time-card-info" id="timeCardInfo" style="display: none;">
+                    <div class="time-card-item">
+                        <i class="fas fa-clock"></i>
+                        <span>到期时间:</span>
+                        <span id="expireTime"></span>
+                    </div>
+                    <div class="time-card-item">
+                        <i class="fas fa-hourglass-half"></i>
+                        <span>剩余时间:</span>
+                        <span id="remainingTime"></span>
+                    </div>
+                </div>
+                
                 <div class="battery-actions">
                     <button class="btn btn-success btn-block" id="rechargeBtn">
                         <i class="fas fa-bolt"></i>
@@ -1837,6 +1839,12 @@
                     <button class="btn btn-primary" id="exportConversationBtn" style="width: 100%; margin-top: 15px;">
                         <i class="fas fa-download"></i>
                         导出当前对话
+                    </button>
+                    
+                    <input type="file" id="importConversationFile" accept=".txt" style="display: none;">
+                    <button class="btn btn-success" id="importConversationBtn" style="width: 100%; margin-top: 10px;">
+                        <i class="fas fa-upload"></i>
+                        导入对话
                     </button>
                 </div>
             </div>
@@ -2003,10 +2011,32 @@
                     </button>
                 </div>
                 
-                <button class="btn btn-danger" id="deletePresetBtn" style="width: 100%;">
-                    <i class="fas fa-trash"></i>
-                    删除当前预设
-                </button>
+                <div class="preset-list-section" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                    <h4 style="margin-bottom: 15px;">预设指令列表</h4>
+                    <div id="presetListContainer" style="max-height: 200px; overflow-y: auto; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 5px; padding: 10px;">
+                        <div id="presetList">
+
+                        </div>
+                    </div>
+                    
+                    <div class="preset-import-export" style="display: flex; gap: 10px;">
+                        <button class="btn btn-info" id="exportSelectedPresetsBtn" style="flex: 1;">
+                            <i class="fas fa-download"></i>
+                            导出选中预设
+                        </button>
+                        <button class="btn btn-warning" id="importPresetsBtn" style="flex: 1;">
+                            <i class="fas fa-upload"></i>
+                            导入预设
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-danger" id="deletePresetBtn" style="width: 100%;">
+                        <i class="fas fa-trash"></i>
+                        删除当前预设
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -2023,22 +2053,121 @@
                         <span>总消耗:</span>
                         <span id="batteryDetailsTotalCost">0.000</span>
                     </div>
-                </div>
-                
-                <div class="battery-tabs">
-                    <div class="battery-tab active" data-tab="recharge">充值记录</div>
-                    <div class="battery-tab" data-tab="consumption">对话消耗</div>
-                </div>
-                
-                <div class="battery-tab-content active" id="rechargeTab">
-                    <div id="rechargeRecords">
+                    <div class="battery-summary-item battery-summary-remaining">
+                        <span>电池剩余:</span>
+                        <span id="batteryDetailsRemaining">0.000</span>
+                    </div>
+
+                    <div class="time-card-summary" id="timeCardSummary" style="display: none; margin-top: 10px; padding: 10px; background-color: rgba(16, 185, 129, 0.1); border-radius: 5px;">
+                        <div class="time-card-summary-item">
+                            <i class="fas fa-crown"></i>
+                            <span>当前状态:</span>
+                            <span id="timeCardStatus"></span>
+                        </div>
+                        <div class="time-card-summary-item">
+                            <i class="fas fa-clock"></i>
+                            <span>到期时间:</span>
+                            <span id="timeCardExpire"></span>
+                        </div>
+                        <div class="time-card-summary-item">
+                            <i class="fas fa-hourglass-half"></i>
+                            <span>剩余时间:</span>
+                            <span id="timeCardRemaining"></span>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="battery-tab-content" id="consumptionTab">
-                    <div id="consumptionRecords">
+                <div class="price-table-section" style="margin-top: 30px;">
+                    <h4 style="margin-bottom: 20px; color: var(--primary-color); border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">价目表</h4>
+                    
+                    <div class="price-table-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        
+                        <div class="battery-pricing">
+                            <h5 style="color: var(--secondary-color); margin-bottom: 15px;"><i class="fas fa-battery-full"></i> 电池计费</h5>
+                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>1元</span>
+                                    <span style="color: var(--secondary-color); font-weight: 500;">200电池</span>
+                                </div>
+                            </div>
+                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>5元</span>
+                                    <span style="color: var(--secondary-color); font-weight: 500;">1100电池</span>
+                                </div>
+                            </div>
+                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>20元</span>
+                                    <span style="color: var(--secondary-color); font-weight: 500;">5000电池</span>
+                                </div>
+                            </div>
+                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px; opacity: 0.6;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>15000电池</span>
+                                    <span style="color: var(--text-secondary); font-style: italic;">暂未开放购买</span>
+                                </div>
+                            </div>
+                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px; opacity: 0.6;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>35000电池</span>
+                                    <span style="color: var(--text-secondary); font-style: italic;">暂未开放购买</span>
+                                </div>
+                            </div>
+                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px; opacity: 0.6;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>80000电池</span>
+                                    <span style="color: var(--text-secondary); font-style: italic;">暂未开放购买</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="membership-pricing">
+                            <h5 style="color: var(--warning-color); margin-bottom: 15px;"><i class="fas fa-crown"></i> 会员卡</h5>
+                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>1元</span>
+                                    <span style="color: var(--warning-color); font-weight: 500;">1天</span>
+                                </div>
+                            </div>
+                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>5元</span>
+                                    <span style="color: var(--warning-color); font-weight: 500;">7天</span>
+                                </div>
+                            </div>
+                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>20元</span>
+                                    <span style="color: var(--warning-color); font-weight: 500;">30天</span>
+                                </div>
+                            </div>
+                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px; opacity: 0.6;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>90天</span>
+                                    <span style="color: var(--text-secondary); font-style: italic;">暂未开放购买</span>
+                                </div>
+                            </div>
+                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px; opacity: 0.6;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>180天</span>
+                                    <span style="color: var(--text-secondary); font-style: italic;">暂未开放购买</span>
+                                </div>
+                            </div>
+                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px; opacity: 0.6;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>365天</span>
+                                    <span style="color: var(--text-secondary); font-style: italic;">暂未开放购买</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 20px; padding: 15px; background-color: rgba(59, 130, 246, 0.1); border-radius: 8px; font-size: 0.9rem; color: var(--text-secondary);">
+                        <i class="fas fa-info-circle"></i> 如需购买，请联系管理员获取充值码
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -2168,7 +2297,7 @@
         let deleteTimer = null;
         let deleteCountdown = 10;
         let temperature = 0.7;
-        let contextLength = 5;
+        let contextLength = 7;
         let currentConversationCost = 0;
         let todayCost = 0;
         let totalCost = 0;
@@ -2267,14 +2396,12 @@
         const userNickname = document.getElementById('userNickname');
         const newPresetBtn = document.getElementById('newPresetBtn');
         const deletePresetBtn = document.getElementById('deletePresetBtn');
+        const exportSelectedPresetsBtn = document.getElementById('exportSelectedPresetsBtn');
+        const importPresetsBtn = document.getElementById('importPresetsBtn');
+        const presetList = document.getElementById('presetList');
         const batteryDetailsBtn = document.getElementById('batteryDetailsBtn');
         const batteryDetailsModal = document.getElementById('batteryDetailsModal');
         const closeBatteryDetailsModal = document.getElementById('closeBatteryDetailsModal');
-        const batteryTabs = document.querySelectorAll('.battery-tab');
-        const rechargeTab = document.getElementById('rechargeTab');
-        const consumptionTab = document.getElementById('consumptionTab');
-        const rechargeRecords = document.getElementById('rechargeRecords');
-        const consumptionRecords = document.getElementById('consumptionRecords');
         const batteryDetailsTotalCost = document.getElementById('batteryDetailsTotalCost');
         const aiFirstButton = document.getElementById('aiFirstButton');
         const continueButton = document.getElementById('continueButton');
@@ -2441,8 +2568,9 @@
                 continueButton.style.display = 'flex';
             }
             
-            aiFirstButton.disabled = battery <= 0;
-            continueButton.disabled = battery <= 0;
+            const isTimeCardActive = currentUser && currentUser.timeCard && currentUser.timeCard.active;
+            aiFirstButton.disabled = battery <= 0 && !isTimeCardActive;
+            continueButton.disabled = battery <= 0 && !isTimeCardActive;
         }
         
         document.addEventListener('DOMContentLoaded', function() {
@@ -2468,6 +2596,45 @@
             
             if (rechargeModal.classList.contains('active')) {
                 rechargeCurrentTime.textContent = formattedTime;
+            }
+            
+            
+            if (currentUser && currentUser.timeCard && currentUser.timeCard.active) {
+                const timeCardInfo = document.getElementById('timeCardInfo');
+                const remainingTime = document.getElementById('remainingTime');
+                
+                if (timeCardInfo && timeCardInfo.style.display !== 'none' && remainingTime) {
+                    const endTime = new Date(currentUser.timeCard.endTime);
+                    const remainingMs = endTime.getTime() - now.getTime();
+                    remainingTime.textContent = formatRemainingTime(remainingMs);
+                }
+                
+                
+                const batteryDetailsModal = document.getElementById('batteryDetailsModal');
+                const timeCardRemaining = document.getElementById('timeCardRemaining');
+                
+                if (batteryDetailsModal && batteryDetailsModal.classList.contains('active') && timeCardRemaining) {
+                    const endTime = new Date(currentUser.timeCard.endTime);
+                    const remainingMs = endTime.getTime() - now.getTime();
+                    timeCardRemaining.textContent = formatRemainingTime(remainingMs);
+                }
+                
+                
+                const endTime = new Date(currentUser.timeCard.endTime);
+                const remainingMs = endTime.getTime() - now.getTime();
+                if (remainingMs <= 0) {
+                    
+                    battery = currentUser.timeCard.originalBattery || 0.000;
+                    currentUser.timeCard.active = false;
+                    currentUser.timeCard.type = null;
+                    currentUser.timeCard.startTime = null;
+                    currentUser.timeCard.endTime = null;
+                    currentUser.timeCard.originalBattery = battery;
+                    
+                    saveUserData();
+                    updateUserUI();
+                    showNotification('时长卡已到期', 'info');
+                }
             }
         }
         
@@ -2593,9 +2760,15 @@
                         userAvatar.style.backgroundPosition = 'center';
                         userAvatar.textContent = '';
                         
-                        const currentUser = JSON.parse(localStorage.getItem('sakuraAI_currentUser') || '{}');
-                        currentUser.avatar = dataURL;
-                        localStorage.setItem('sakuraAI_currentUser', JSON.stringify(currentUser));
+                        
+                        if (currentUser) {
+                            currentUser.avatar = dataURL;
+                            saveUserData();
+                        } else {
+                            const savedUser = JSON.parse(localStorage.getItem('sakuraAI_currentUser') || '{}');
+                            savedUser.avatar = dataURL;
+                            localStorage.setItem('sakuraAI_currentUser', JSON.stringify(savedUser));
+                        }
                         
                         alert('头像上传成功！');
                     };
@@ -2712,6 +2885,8 @@
             savePresetBtn.addEventListener('click', savePreset);
             newPresetBtn.addEventListener('click', createNewPreset);
             deletePresetBtn.addEventListener('click', deleteCurrentPreset);
+            exportSelectedPresetsBtn.addEventListener('click', exportSelectedPresets);
+            importPresetsBtn.addEventListener('click', importPresets);
             
             saveRenameBtn.addEventListener('click', saveConversationRename);
             
@@ -2759,6 +2934,26 @@
             
             exportConversationBtn.addEventListener('click', exportConversation);
             
+            importConversationBtn.addEventListener('click', function() {
+                importConversationFile.click();
+            });
+            
+            importConversationFile.addEventListener('change', handleImportConversation);
+            
+            
+             document.getElementById('closeNicknameSelectModal').addEventListener('click', function() {
+                 document.getElementById('nicknameSelectModal').classList.remove('active');
+             });
+             
+             document.getElementById('confirmNicknameSelect').addEventListener('click', confirmNicknameSelection);
+             
+             
+             document.getElementById('nicknameSelectModal').addEventListener('click', function(e) {
+                 if (e.target === this) {
+                     this.classList.remove('active');
+                 }
+             });
+            
             addApiBtn.addEventListener('click', addNewApi);
             
             cancelDeleteApiBtn.addEventListener('click', function() {
@@ -2796,24 +2991,6 @@
             batteryDetailsBtn.addEventListener('click', function() {
                 batteryDetailsModal.classList.add('active');
                 loadBatteryDetails();
-            });
-            
-            batteryTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabName = this.dataset.tab;
-                    
-                    batteryTabs.forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    rechargeTab.classList.remove('active');
-                    consumptionTab.classList.remove('active');
-                    
-                    if (tabName === 'recharge') {
-                        rechargeTab.classList.add('active');
-                    } else {
-                        consumptionTab.classList.add('active');
-                    }
-                });
             });
             
             aiFirstButton.addEventListener('click', aiFirst);
@@ -2887,8 +3064,8 @@
                     document: []
                 },
                 batteryHash: user.batteryHash || '',
-                rechargeRecords: user.rechargeRecords || [],
-                consumptionRecords: user.consumptionRecords || []
+                timeCard: user.timeCard || null,
+                avatar: user.avatar || null
             };
             
             if (currentUser.batteryHash) {
@@ -2977,8 +3154,8 @@
                     chat: [],
                     document: []
                 },
-                rechargeRecords: [],
-                consumptionRecords: [],
+                timeCard: null,
+                avatar: null,
                 createdAt: new Date().toISOString()
             };
             
@@ -3043,21 +3220,72 @@
         }
         
         function updateBatteryUI() {
-            batteryAmount.textContent = battery.toFixed(3);
+            const timeCardInfo = document.getElementById('timeCardInfo');
+            const expireTime = document.getElementById('expireTime');
+            const remainingTime = document.getElementById('remainingTime');
             
-            if (battery < 1) {
-                batteryAmount.classList.add('battery-low');
-            } else {
+            
+            if (currentUser && currentUser.timeCard && currentUser.timeCard.active) {
+                
+                batteryAmount.textContent = '∞';
                 batteryAmount.classList.remove('battery-low');
+                
+                
+                timeCardInfo.style.display = 'block';
+                
+                
+                const now = new Date();
+                const endTime = new Date(currentUser.timeCard.endTime);
+                
+                
+                expireTime.textContent = endTime.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                
+                const remainingMs = endTime.getTime() - now.getTime();
+                remainingTime.textContent = formatRemainingTime(remainingMs);
+                
+                
+                sendButton.disabled = false;
+                aiFirstButton.disabled = false;
+                continueButton.disabled = false;
+                messageInput.placeholder = '输入消息...';
+            } else {
+                
+                batteryAmount.textContent = battery.toFixed(3);
+                
+                if (battery < 1) {
+                    batteryAmount.classList.add('battery-low');
+                } else {
+                    batteryAmount.classList.remove('battery-low');
+                }
+                
+                
+                timeCardInfo.style.display = 'none';
+                
+                
+                const isTimeCardActive = currentUser && currentUser.timeCard && currentUser.timeCard.active;
+                sendButton.disabled = battery <= 0 && !isTimeCardActive;
+                aiFirstButton.disabled = battery <= 0 && !isTimeCardActive;
+                continueButton.disabled = battery <= 0 && !isTimeCardActive;
+                messageInput.placeholder = (battery <= 0 && !isTimeCardActive) ? '电池不足，请充值后使用' : '输入消息...';
             }
-            
-            sendButton.disabled = battery <= 0;
-            aiFirstButton.disabled = battery <= 0;
-            continueButton.disabled = battery <= 0;
-            messageInput.placeholder = battery <= 0 ? '电池不足，请充值后使用' : '输入消息...';
         }
         
         function consumeBattery(cost, conversationId = null, conversationTitle = null) {
+            
+            if (currentUser && currentUser.timeCard && currentUser.timeCard.active) {
+                
+                
+                return battery;
+            }
+            
+            
             battery -= cost;
             
             if (battery < 0) battery = 0;
@@ -3106,6 +3334,12 @@
             if (currentUser) {
                 currentUser.battery = battery;
                 currentUser.batteryHash = simpleHash(battery.toString() + ENCRYPTION_KEY);
+                
+                
+                if (currentUser.timeCard && currentUser.timeCard.active) {
+                    currentUser.timeCard.originalBattery = battery;
+                }
+                
                 if (currentUser.rechargeRecords) {
                     currentUser.rechargeRecords.push(rechargeRecord);
                 } else {
@@ -3117,6 +3351,53 @@
             updateBatteryUI();
             
             return battery;
+        }
+        
+        function activateTimeCard(type, duration) {
+            const now = new Date();
+            let endTime;
+            let originalBattery = battery;
+            
+            
+            if (currentUser.timeCard && currentUser.timeCard.active) {
+                
+                const currentEndTime = new Date(currentUser.timeCard.endTime);
+                endTime = new Date(currentEndTime.getTime() + duration * 24 * 60 * 60 * 1000);
+                
+                originalBattery = currentUser.timeCard.originalBattery;
+            } else {
+                
+                endTime = new Date(now.getTime() + duration * 24 * 60 * 60 * 1000);
+            }
+            
+            
+            currentUser.timeCard = {
+                active: true,
+                type: type,
+                startTime: now.toISOString(),
+                endTime: endTime.toISOString(),
+                originalBattery: originalBattery
+            };
+            
+            
+            const rechargeRecord = {
+                id: Date.now(),
+                type: 'timeCard',
+                timeCardType: type,
+                duration: duration,
+                startTime: now.toISOString(),
+                endTime: endTime.toISOString(),
+                timestamp: now.toISOString()
+            };
+            
+            if (currentUser.rechargeRecords) {
+                currentUser.rechargeRecords.push(rechargeRecord);
+            } else {
+                currentUser.rechargeRecords = [rechargeRecord];
+            }
+            
+            saveUserData();
+            updateBatteryUI();
         }
         
         function useRechargeCode() {
@@ -3131,7 +3412,7 @@
                 const decoded = atob(code);
                 const data = JSON.parse(decoded);
                 
-                if (!data.email || !data.username || !data.battery || !data.securityCode || !data.timestamp) {
+                if (!data.email || !data.username || data.battery === undefined || !data.securityCode || !data.timestamp) {
                     showNotification('充值码格式错误', 'error');
                     return;
                 }
@@ -3186,26 +3467,50 @@
                     }
                 }
                 
+                
+                const isTimeCard = data.timeCardType && data.timeCardDuration;
+                
                 rechargeEmail.textContent = data.email;
                 rechargeUsername.textContent = data.username;
-                rechargeBattery.textContent = data.battery.toFixed(3);
+                
+                if (isTimeCard) {
+                    rechargeBattery.textContent = `时长卡 (无限电量)`;
+                } else {
+                    rechargeBattery.textContent = data.battery.toFixed(3);
+                }
+                
                 rechargeTime.textContent = formatDateTime(new Date(data.timestamp));
                 rechargeSecurityCode.textContent = data.securityCode;
                 rechargeInfo.style.display = 'block';
                 
-                if (confirm(`确定要充值 ${data.battery.toFixed(3)} 电池吗？`)) {
+                const isTimeCardActive = currentUser.timeCard && currentUser.timeCard.active;
+                const confirmMessage = isTimeCard 
+                    ? isTimeCardActive 
+                        ? `确定要延长 时长卡 吗？延长: ${data.timeCardDuration}天`
+                        : `确定要激活 时长卡 吗？有效期: ${data.timeCardDuration}天`
+                    : `确定要充值 ${data.battery.toFixed(3)} 电池吗？`;
+                
+                if (confirm(confirmMessage)) {
                     usedCodes.push(code);
                     localStorage.setItem('sakuraAI_usedRechargeCodes', JSON.stringify(usedCodes));
                     
-                    rechargeBatteryFunc(data.battery);
+                    if (isTimeCard) {
+                        
+                        activateTimeCard(data.timeCardType, data.timeCardDuration);
+                        showNotification(isTimeCardActive 
+                            ? `成功延长 时长卡！延长: ${data.timeCardDuration}天`
+                            : `成功激活 时长卡！有效期: ${data.timeCardDuration}天`, 'success');
+                    } else {
+                        
+                        rechargeBatteryFunc(data.battery);
+                        showNotification(`成功充值 ${data.battery.toFixed(3)} 电池`, 'success');
+                    }
                     
                     saveUserData();
                     
                     rechargeModal.classList.remove('active');
                     rechargeInfo.style.display = 'none';
                     rechargeCode.value = '';
-                    
-                    showNotification(`成功充值 ${data.battery.toFixed(3)} 电池`, 'success');
                 }
                 
             } catch (error) {
@@ -3233,6 +3538,33 @@
             apis = currentUser.apis;
             customPresets = currentUser.customPresets;
             conversations = currentUser.conversations;
+            
+            
+            if (!currentUser.timeCard) {
+                currentUser.timeCard = {
+                    active: false,
+                    type: null,
+                    startTime: null,
+                    endTime: null,
+                    originalBattery: battery
+                };
+            }
+            
+            
+            if (currentUser.timeCard.active && currentUser.timeCard.endTime) {
+                const now = new Date().getTime();
+                const endTime = new Date(currentUser.timeCard.endTime).getTime();
+                if (now > endTime) {
+                    
+                    battery = currentUser.timeCard.originalBattery || 0.000;
+                    currentUser.timeCard.active = false;
+                    currentUser.timeCard.type = null;
+                    currentUser.timeCard.startTime = null;
+                    currentUser.timeCard.endTime = null;
+                    currentUser.timeCard.originalBattery = battery;
+                    saveUserData();
+                }
+            }
             
             if (apis.length > 0) {
                 currentApiId = apis[0].id;
@@ -3272,8 +3604,8 @@
                     apis: currentUser.apis,
                     customPresets: currentUser.customPresets,
                     conversations: currentUser.conversations,
-                    rechargeRecords: currentUser.rechargeRecords || [],
-                    consumptionRecords: currentUser.consumptionRecords || []
+                    timeCard: currentUser.timeCard || null,
+                    avatar: currentUser.avatar || null
                 };
                 
                 users[userIndex] = updatedUser;
@@ -3689,7 +4021,8 @@
                 return;
             }
             
-            if (battery <= 0) {
+            const isTimeCardActive = currentUser && currentUser.timeCard && currentUser.timeCard.active;
+            if (battery <= 0 && !isTimeCardActive) {
                 showNotification('电池不足，请充值后使用', 'error');
                 return;
             }
@@ -3715,7 +4048,8 @@
             try {
                 const costEstimate = calculateBatteryCostByTokens(conversation, "");
                 
-                if (battery - costEstimate.cost < 0) {
+                const isTimeCardActive = currentUser && currentUser.timeCard && currentUser.timeCard.active;
+                if (battery - costEstimate.cost < 0 && !isTimeCardActive) {
                     aiMessageElement.remove();
                     showNotification('电池不足，请充值后使用', 'error');
                     return;
@@ -3771,7 +4105,8 @@
                 return;
             }
             
-            if (battery <= 0) {
+            const isTimeCardActive = currentUser && currentUser.timeCard && currentUser.timeCard.active;
+            if (battery <= 0 && !isTimeCardActive) {
                 showNotification('电池不足，请充值后使用', 'error');
                 return;
             }
@@ -3807,7 +4142,8 @@
                 
                 const costEstimate = calculateBatteryCostByTokens(tempConversation, continuePrompt);
                 
-                if (battery - costEstimate.cost < 0) {
+                const isTimeCardActive = currentUser && currentUser.timeCard && currentUser.timeCard.active;
+                if (battery - costEstimate.cost < 0 && !isTimeCardActive) {
                     aiMessageElement.remove();
                     showNotification('电池不足，请充值后使用', 'error');
                     return;
@@ -3893,7 +4229,8 @@
                 return;
             }
             
-            if (battery <= 0) {
+            const isTimeCardActive = currentUser && currentUser.timeCard && currentUser.timeCard.active;
+            if (battery <= 0 && !isTimeCardActive) {
                 showNotification('电池不足，请充值后使用', 'error');
                 return;
             }
@@ -3931,7 +4268,8 @@
                 
                 const costEstimate = calculateBatteryCostByTokens(tempConversation, userMessageContent);
                 
-                if (battery - costEstimate.cost < 0) {
+                const isTimeCardActive = currentUser && currentUser.timeCard && currentUser.timeCard.active;
+                if (battery - costEstimate.cost < 0 && !isTimeCardActive) {
                     aiMessageElement.remove();
                     if (originalMessageElement) {
                         originalMessageElement.style.opacity = '1';
@@ -4205,7 +4543,8 @@
             try {
                 const costEstimate = calculateBatteryCostByTokens(conversation, content);
                 
-                if (battery - costEstimate.cost < 0) {
+                const isTimeCardActive = currentUser && currentUser.timeCard && currentUser.timeCard.active;
+                if (battery - costEstimate.cost < 0 && !isTimeCardActive) {
                     aiMessageElement.remove();
                     
                     conversation.messages.pop();
@@ -4346,6 +4685,7 @@
             presetModal.classList.add('active');
             loadPresetSelect();
             loadSelectedPreset();
+            renderPresetList();
         }
         
         function loadPresetSelect() {
@@ -4564,6 +4904,31 @@
             showNotification('预设已保存', 'success');
         }
         
+        function renderPresetList() {
+            presetList.innerHTML = '';
+            
+            if (customPresets.length === 0) {
+                presetList.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">暂无预设指令</div>';
+                return;
+            }
+            
+            customPresets.forEach((preset, index) => {
+                const presetItem = document.createElement('div');
+                presetItem.className = 'preset-item';
+                presetItem.style.cssText = 'display: flex; align-items: center; padding: 8px; margin-bottom: 5px; border: 1px solid var(--border-color); border-radius: 4px; background-color: rgba(255, 255, 255, 0.02);';
+                
+                presetItem.innerHTML = `
+                    <input type="checkbox" class="preset-checkbox" data-index="${index}" style="margin-right: 10px;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; font-size: 0.9rem;">${preset.name}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${preset.content.substring(0, 50)}${preset.content.length > 50 ? '...' : ''}</div>
+                    </div>
+                `;
+                
+                presetList.appendChild(presetItem);
+            });
+        }
+        
         function deleteCurrentPreset() {
             const selectedIndex = presetSelect.value;
             
@@ -4591,12 +4956,146 @@
             loadPresetSelect();
             presetSelect.value = "-1";
             handlePresetSelectChange();
+            renderPresetList();
             
             updatePresetStatusDisplay();
             updateCostEstimate();
             updateContextCostInfo();
             renderMessages();
             showNotification('预设已删除', 'success');
+        }
+        
+        function exportSelectedPresets() {
+            const checkboxes = document.querySelectorAll('.preset-checkbox:checked');
+            
+            if (checkboxes.length === 0) {
+                showNotification('请先选择要导出的预设指令', 'error');
+                return;
+            }
+            
+            const selectedPresets = [];
+            checkboxes.forEach(checkbox => {
+                const index = parseInt(checkbox.dataset.index);
+                if (index >= 0 && index < customPresets.length) {
+                    selectedPresets.push(customPresets[index]);
+                }
+            });
+            
+            if (selectedPresets.length === 0) {
+                showNotification('没有有效的预设指令可导出', 'error');
+                return;
+            }
+            
+            const exportData = {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                presets: selectedPresets
+            };
+            
+            const jsonString = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `樱梦AI预设指令_${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification(`成功导出 ${selectedPresets.length} 个预设指令`, 'success');
+        }
+        
+        function importPresets() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (!file.name.endsWith('.json')) {
+                    showNotification('请选择JSON格式的文件', 'error');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importData = JSON.parse(e.target.result);
+                        
+                        if (!importData.presets || !Array.isArray(importData.presets)) {
+                            showNotification('文件格式不正确', 'error');
+                            return;
+                        }
+                        
+                        if (importData.presets.length === 0) {
+                            showNotification('导入文件为空', 'error');
+                            return;
+                        }
+                        
+                        
+                        for (let i = 0; i < importData.presets.length; i++) {
+                            const preset = importData.presets[i];
+                            if (!preset.name || !preset.content) {
+                                showNotification(`第 ${i + 1} 个预设格式不正确，导入失败`, 'error');
+                                return;
+                            }
+                        }
+                        
+                        
+                        const duplicateNames = [];
+                        importData.presets.forEach(importedPreset => {
+                            const existingIndex = customPresets.findIndex(p => p.name === importedPreset.name);
+                            if (existingIndex !== -1) {
+                                duplicateNames.push(importedPreset.name);
+                            }
+                        });
+                        
+                        let importMessage = `确定要导入 ${importData.presets.length} 个预设指令吗？`;
+                        if (duplicateNames.length > 0) {
+                            importMessage += `\n\n注意：以下预设名称已存在，导入后将覆盖：\n${duplicateNames.join(', ')}`;
+                        } else {
+                            importMessage += '\n\n这将添加新的预设指令到现有列表中。';
+                        }
+                        
+                        if (!confirm(importMessage)) {
+                            return;
+                        }
+                        
+                        
+                        importData.presets.forEach(importedPreset => {
+                            const existingIndex = customPresets.findIndex(p => p.name === importedPreset.name);
+                            if (existingIndex !== -1) {
+                                
+                                customPresets[existingIndex] = importedPreset;
+                            } else {
+                                
+                                customPresets.push(importedPreset);
+                            }
+                        });
+                        
+                        currentUser.customPresets = customPresets;
+                        saveUserData();
+                        
+                        loadPresetSelect();
+                        renderPresetList();
+                        updatePresetStatusDisplay();
+                        
+                        showNotification(`成功导入 ${importData.presets.length} 个预设指令`, 'success');
+                        
+                    } catch (error) {
+                        console.error('导入错误:', error);
+                        showNotification('文件解析失败，请检查文件格式', 'error');
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
         }
         
         function handleNicknameChange() {
@@ -4915,6 +5414,223 @@
             showNotification('对话已导出', 'success');
         }
         
+        function handleImportConversation(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.name.endsWith('.txt')) {
+                showNotification('请选择.txt格式的文件', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    const fileName = file.name.replace('.txt', '');
+                    importConversation(content, fileName);
+                    event.target.value = '';
+                } catch (error) {
+                    console.error('导入对话失败:', error);
+                    showNotification('导入对话失败，文件格式不正确', 'error');
+                }
+            };
+            reader.onerror = function() {
+                showNotification('读取文件失败', 'error');
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
+        
+        
+        let importData = {
+            fileName: '',
+            content: '',
+            nicknames: new Set(),
+            rawMessages: []
+        };
+        
+        function importConversation(content, fileName) {
+            console.log('开始导入对话，文件名:', fileName);
+            
+            const lines = content.split('\n');
+            const nicknames = new Set();
+            const rawMessages = [];
+            let currentNickname = '';
+            let currentContent = '';
+            
+            console.log('总行数:', lines.length);
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                if (line === '') continue;
+                
+                
+                const colonIndex = line.indexOf(':');
+                if (colonIndex !== -1) {
+                    const nickname = line.substring(0, colonIndex).trim();
+                    const contentPart = line.substring(colonIndex + 1).trim();
+                    
+                    console.log('检测到角色行，昵称:', nickname, '内容部分:', contentPart);
+                    
+                    
+                    if (currentNickname && currentContent.trim()) {
+                        rawMessages.push({
+                            nickname: currentNickname,
+                            content: currentContent.trim()
+                        });
+                    }
+                    
+                    
+                    currentNickname = nickname;
+                    currentContent = contentPart;
+                    
+                    
+                    if (nickname) {
+                        nicknames.add(nickname);
+                    }
+                } else {
+                    
+                    console.log('作为内容处理');
+                    if (currentContent) {
+                        currentContent += '\n' + line;
+                    } else {
+                        currentContent = line;
+                    }
+                }
+            }
+            
+            
+            if (currentNickname && currentContent.trim()) {
+                rawMessages.push({
+                    nickname: currentNickname,
+                    content: currentContent.trim()
+                });
+            }
+            
+            console.log('解析完成，昵称数量:', nicknames.size, '消息数量:', rawMessages.length);
+            console.log('检测到的昵称:', Array.from(nicknames));
+            
+            if (rawMessages.length === 0) {
+                showNotification('文件中没有找到有效的对话内容', 'error');
+                return;
+            }
+            
+            
+            if (nicknames.size > 2) {
+                showNotification(`检测到 ${nicknames.size} 个不同的昵称，最多只能有2个昵称（用户和AI）`, 'error');
+                return;
+            }
+            
+            
+            importData = {
+                fileName: fileName,
+                content: content,
+                nicknames: nicknames,
+                rawMessages: rawMessages
+            };
+            
+            
+             showNicknameSelectModal();
+         }
+         
+        function showNicknameSelectModal() {
+            const modal = document.getElementById('nicknameSelectModal');
+            const nicknameList = document.getElementById('nicknameList');
+            const userSelect = document.getElementById('userNicknameSelect');
+            const aiSelect = document.getElementById('aiNicknameSelect');
+            
+            
+            nicknameList.innerHTML = '';
+            userSelect.innerHTML = '<option value="">请选择用户昵称</option>';
+            aiSelect.innerHTML = '<option value="">请选择AI昵称</option>';
+            
+            
+            const nicknames = Array.from(importData.nicknames);
+            nicknameList.innerHTML = `<div style="color: var(--text-secondary); font-size: 0.9rem;">检测到的昵称: ${nicknames.join(', ')}</div>`;
+            
+            
+            nicknames.forEach(nickname => {
+                const userOption = document.createElement('option');
+                userOption.value = nickname;
+                userOption.textContent = nickname;
+                userSelect.appendChild(userOption);
+                
+                const aiOption = document.createElement('option');
+                aiOption.value = nickname;
+                aiOption.textContent = nickname;
+                aiSelect.appendChild(aiOption);
+            });
+            
+            
+            if (nicknames.length === 2) {
+                userSelect.value = nicknames[0];
+                aiSelect.value = nicknames[1];
+            }
+            
+            
+            modal.classList.add('active');
+        }
+        
+        function confirmNicknameSelection() {
+            const userNickname = document.getElementById('userNicknameSelect').value;
+            const aiNickname = document.getElementById('aiNicknameSelect').value;
+            
+            if (!userNickname || !aiNickname) {
+                showNotification('请选择用户和AI的昵称', 'error');
+                return;
+            }
+            
+            if (userNickname === aiNickname) {
+                showNotification('用户和AI的昵称不能相同', 'error');
+                return;
+            }
+            
+            
+            const messages = importData.rawMessages.map(msg => ({
+                role: msg.nickname === userNickname ? 'user' : 'assistant',
+                content: msg.content,
+                timestamp: new Date().toISOString()
+            }));
+            
+            
+            const newConversation = {
+                id: Date.now(),
+                mode: 'chat',
+                title: importData.fileName || '导入的对话',
+                messages: messages,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                temperature: temperature,
+                contextLength: contextLength,
+                isNew: false,
+                totalCost: 0,
+                presetIndex: -1,
+                presetContent: '',
+                aiNickname: '',
+                userNickname: '',
+                failedMessages: []
+            };
+            
+            
+            if (!conversations.chat) {
+                conversations.chat = [];
+            }
+            conversations.chat.push(newConversation);
+            
+            
+            saveUserData();
+            
+            
+            switchConversation(newConversation.id);
+            
+            
+            const modal = document.getElementById('nicknameSelectModal');
+            modal.classList.remove('active');
+            
+            showNotification(`对话"${importData.fileName}"导入成功`, 'success');
+        }
+        
         function updateRecentConversations() {
             recentConversations.innerHTML = '';
             
@@ -5004,6 +5720,18 @@
             return formatDateTime(date);
         }
         
+        function formatRemainingTime(remainingMs) {
+            if (remainingMs <= 0) return '已到期';
+            
+            const seconds = Math.floor(remainingMs / 1000);
+            const days = Math.floor(seconds / (24 * 60 * 60));
+            const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
+            const minutes = Math.floor((seconds % (60 * 60)) / 60);
+            const secs = seconds % 60;
+            
+            return `${days.toString().padStart(2, '0')}:${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 B';
             const k = 1024;
@@ -5015,89 +5743,40 @@
         function loadBatteryDetails() {
             if (!currentUser) return;
             
+            const timeCardSummary = document.getElementById('timeCardSummary');
+            const batteryDetailsRemaining = document.getElementById('batteryDetailsRemaining');
+            const timeCardStatus = document.getElementById('timeCardStatus');
+            const timeCardExpire = document.getElementById('timeCardExpire');
+            const timeCardRemaining = document.getElementById('timeCardRemaining');
+            
             batteryDetailsTotalCost.textContent = totalCost.toFixed(3);
             
-            loadRechargeRecords();
-            loadConsumptionRecords();
-        }
-        
-        function loadRechargeRecords() {
-            rechargeRecords.innerHTML = '';
             
-            if (!currentUser.rechargeRecords || currentUser.rechargeRecords.length === 0) {
-                rechargeRecords.innerHTML = '<div style="color: var(--text-secondary); text-align: center; padding: 20px;">暂无充值记录</div>';
-                return;
-            }
-            
-            currentUser.rechargeRecords.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            currentUser.rechargeRecords.forEach(record => {
-                const item = document.createElement('div');
-                item.className = 'recharge-record-item';
+            if (currentUser.timeCard && currentUser.timeCard.active) {
                 
-                item.innerHTML = `
-                    <div class="recharge-record-info">
-                        <div class="recharge-record-title">电池充值</div>
-                        <div class="recharge-record-time">${formatDateTime(new Date(record.timestamp))}</div>
-                    </div>
-                    <div class="recharge-record-amount">+${record.amount.toFixed(3)}</div>
-                `;
+                const originalBattery = currentUser.timeCard.originalBattery || 0.000;
+                batteryDetailsRemaining.textContent = originalBattery.toFixed(3);
                 
-                rechargeRecords.appendChild(item);
-            });
-        }
-        
-        function loadConsumptionRecords() {
-            consumptionRecords.innerHTML = '';
-            
-            if (!currentUser.consumptionRecords || currentUser.consumptionRecords.length === 0) {
-                consumptionRecords.innerHTML = '<div style="color: var(--text-secondary); text-align: center; padding: 20px;">暂无消耗记录</div>';
-                return;
-            }
-            
-            currentUser.consumptionRecords.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            currentUser.consumptionRecords.forEach(record => {
-                const item = document.createElement('div');
-                item.className = 'consumption-record-item';
                 
-                item.innerHTML = `
-                    <div class="consumption-record-info">
-                        <div class="consumption-record-title">${record.conversationTitle}</div>
-                        <div class="consumption-record-time">${formatDateTime(new Date(record.timestamp))}</div>
-                    </div>
-                    <div class="consumption-record-amount">-${record.amount.toFixed(3)}</div>
-                    <div class="consumption-record-actions">
-                        <button class="btn btn-danger btn-sm delete-consumption-btn" data-id="${record.id}" style="padding: 4px 8px; font-size: 0.8rem;">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                `;
+                timeCardSummary.style.display = 'block';
+                timeCardStatus.textContent = `${currentUser.timeCard.type}卡激活中`;
                 
-                consumptionRecords.appendChild(item);
-            });
-            
-            document.querySelectorAll('.delete-consumption-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const recordId = parseInt(this.dataset.id);
-                    deleteConsumptionRecord(recordId);
+                const endTime = new Date(currentUser.timeCard.endTime);
+                timeCardExpire.textContent = endTime.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
                 });
-            });
-        }
-        
-        function deleteConsumptionRecord(recordId) {
-            if (!confirm('确定要删除这条消耗记录吗？')) return;
-            
-            if (!currentUser.consumptionRecords) return;
-            
-            const recordIndex = currentUser.consumptionRecords.findIndex(r => r.id === recordId);
-            if (recordIndex === -1) return;
-            
-            currentUser.consumptionRecords.splice(recordIndex, 1);
-            saveUserData();
-            
-            loadConsumptionRecords();
-            showNotification('消耗记录已删除', 'success');
+                
+                const now = new Date();
+                const remainingMs = endTime.getTime() - now.getTime();
+                timeCardRemaining.textContent = formatRemainingTime(remainingMs);
+            } else {
+                batteryDetailsRemaining.textContent = battery.toFixed(3);
+                timeCardSummary.style.display = 'none';
+            }
         }
         
         const copyrightInfo = document.getElementById('copyrightInfo');
@@ -5210,5 +5889,37 @@
             }
         });
     </script>
+    
+
+    <div class="modal" id="nicknameSelectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">选择角色昵称</h3>
+                <button class="modal-close" id="closeNicknameSelectModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">检测到以下昵称，请选择对应的角色：</label>
+                    <div id="nicknameList" style="margin-bottom: 20px;"></div>
+                    <div class="form-group">
+                        <label class="form-label">用户角色：</label>
+                        <select class="form-control" id="userNicknameSelect">
+                            <option value="">请选择用户昵称</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">AI角色：</label>
+                        <select class="form-control" id="aiNicknameSelect">
+                            <option value="">请选择AI昵称</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="confirmNicknameSelect" style="width: 100%;">
+                    <i class="fas fa-check"></i>
+                    确认选择
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
