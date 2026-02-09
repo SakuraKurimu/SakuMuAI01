@@ -4337,57 +4337,13 @@
             const aiMessage = conversation.messages[index];
             if (aiMessage.role !== 'assistant') return;
             
-            let userMessageIndex = -1;
-            let userMessage = null;
-            
             if (index > 0 && conversation.messages[index - 1].role === 'user') {
-                userMessageIndex = index - 1;
-                userMessage = conversation.messages[index - 1];
-            } else {
-                for (let i = 0; i < index; i++) {
-                    if (conversation.messages[i].role === 'user') {
-                        userMessageIndex = i;
-                        userMessage = conversation.messages[i];
-                        break;
-                    }
-                }
-            }
-            
-            if (!userMessage && userMessageIndex !== -1) {
-                showNotification('找不到对应的用户消息', 'error');
-                return;
-            }
-            
-            if (userMessageIndex === -1) {
-                if (confirm('确定要撤回这条AI消息吗？')) {
-                    conversation.messages.splice(index, 1);
-                    conversation.updatedAt = new Date().toISOString();
-                    
-                    currentConversationCost -= (aiMessage.batteryCost || 0);
-                    conversation.totalCost = currentConversationCost;
-                    
-                    saveUserData();
-                    
-                    messageInput.value = '';
-                    messageInput.focus();
-                    
-                    renderMessages();
-                    updateRecentConversations();
-                    updateActionButtons();
-                    
-                    updateCostEstimate();
-                    
-                    showNotification('AI消息已撤回', 'success');
-                }
-            } else {
                 if (confirm('确定要撤回这一轮对话吗？用户消息将复制到输入框中。')) {
+                    const userMessage = conversation.messages[index - 1];
                     const userMessageContent = userMessage.content;
                     
-                    conversation.messages.splice(userMessageIndex, 2);
+                    conversation.messages.splice(index - 1, 2);
                     conversation.updatedAt = new Date().toISOString();
-                    
-                    currentConversationCost -= (aiMessage.batteryCost || 0) + (userMessage.batteryCost || 0);
-                    conversation.totalCost = currentConversationCost;
                     
                     saveUserData();
                     
@@ -4401,6 +4357,24 @@
                     updateCostEstimate();
                     
                     showNotification('对话已撤回，用户消息已复制到输入框', 'success');
+                }
+            } else {
+                if (confirm('确定要撤回这条AI消息吗？')) {
+                    conversation.messages.splice(index, 1);
+                    conversation.updatedAt = new Date().toISOString();
+                    
+                    saveUserData();
+                    
+                    messageInput.value = '';
+                    messageInput.focus();
+                    
+                    renderMessages();
+                    updateRecentConversations();
+                    updateActionButtons();
+                    
+                    updateCostEstimate();
+                    
+                    showNotification('AI消息已撤回', 'success');
                 }
             }
         }
