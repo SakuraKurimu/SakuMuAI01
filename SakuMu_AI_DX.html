@@ -1488,6 +1488,13 @@
             margin-bottom: 20px;
         }
         
+        .settings-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+            margin: 25px 0;
+            border: none;
+        }
+        
         .settings-label {
             display: block;
             margin-bottom: 8px;
@@ -2011,6 +2018,13 @@
 
         .settings-group {
             margin-bottom: 25px;
+        }
+
+        .settings-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+            margin: 25px 0;
+            border: none;
         }
 
         .settings-label {
@@ -2785,6 +2799,7 @@
                         </button>
                     </div>
                     
+                    <!-- 对话设置 -->
                     <div class="settings-group">
                         <label class="settings-label">对话温度设置: <span class="settings-value" id="temperatureValue">0.7</span></label>
                         <input type="range" min="0" max="1.5" step="0.1" value="0.7" class="settings-slider" id="temperatureSlider">
@@ -2799,6 +2814,10 @@
                         </div>
                     </div>
                     
+                    <!-- 界面设置分隔线 -->
+                    <div class="settings-divider"></div>
+                    
+                    <!-- 界面设置 -->
                     <div class="settings-group">
                         <label class="settings-label">系统主题</label>
                         <div class="theme-selector" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
@@ -2811,6 +2830,10 @@
                         </div>
                     </div>
                     
+                    <!-- 个性化设置分隔线 -->
+                    <div class="settings-divider"></div>
+                    
+                    <!-- 个性化设置 -->
                     <div class="settings-group">
                         <label class="settings-label">AI头像设置</label>
                         <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
@@ -2879,6 +2902,50 @@
                         </div>
                     </div>
                     
+                    <!-- 系统功能分隔线 -->
+                    <div class="settings-divider"></div>
+                    
+                    <!-- 系统功能 -->
+                    <div class="settings-group">
+                        <label class="settings-label">存储空间管理</label>
+                        <div style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 15px; margin-top: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <span style="color: var(--text-secondary);">已使用存储:</span>
+                                <span id="storageUsage" style="color: var(--primary-color); font-weight: 500;">计算中...</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <span style="color: var(--text-secondary);">存储项目数:</span>
+                                <span id="storageItemCount" style="color: var(--primary-color); font-weight: 500;">0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <span style="color: var(--text-secondary);">存储状态:</span>
+                                <span id="storageStatus" style="color: var(--success-color); font-weight: 500;">正常</span>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-primary btn-sm" id="refreshStorageBtn" style="flex: 1; padding: 8px 12px;">
+                                    <i class="fas fa-sync-alt"></i>
+                                    刷新统计
+                                </button>
+                                <button class="btn btn-warning btn-sm" id="cleanupStorageBtn" style="flex: 1; padding: 8px 12px;">
+                                    <i class="fas fa-trash-alt"></i>
+                                    一键清理
+                                </button>
+                            </div>
+                            
+                            <div id="storageDetails" style="margin-top: 15px; display: none;">
+                                <div style="border-top: 1px solid var(--border-color); padding-top: 10px;">
+                                    <h4 style="font-size: 0.9rem; margin-bottom: 10px; color: var(--text-secondary);">存储详情:</h4>
+                                    <div id="storageItemsList" style="max-height: 150px; overflow-y: auto; font-size: 0.8rem; color: var(--text-secondary);"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 数据管理分隔线 -->
+                    <div class="settings-divider"></div>
+                    
+                    <!-- 数据管理 -->
                     <button class="btn btn-primary" id="exportConversationBtn" style="width: 100%; margin-top: 15px;">
                         <i class="fas fa-download"></i>
                         导出当前对话
@@ -2912,7 +2979,7 @@
                         <div class="empty-state">
                             <i class="fas fa-robot"></i>
                             <h3>开始新的对话</h3>
-                            <p>选择左侧的对话或点击"新对话"按钮开始</p>
+                            <p>选择左侧的对话或点击"+"按钮开始</p>
                         </div>
                     </div>
                     
@@ -4129,7 +4196,7 @@
                     const file = e.target.files[0];
                     
                     if (!file.type.startsWith('image/')) {
-                        alert('请选择有效的图片文件！');
+                        customAlert('请选择有效的图片文件！', '文件类型错误');
                         return;
                     }
                     
@@ -4139,9 +4206,9 @@
                         const height = this.height;
                         
                         if (Math.abs(width - height) / Math.max(width, height) > 0.2) {
-                            if (!confirm('检测到图片不是正方形比例（1:1），上传后可能会被裁剪。建议使用正方形图片以获得最佳效果。\n\n是否继续上传？')) {
-                                return;
-                            }
+                            customConfirm('检测到图片不是正方形比例（1:1），上传后可能会被裁剪。建议使用正方形图片以获得最佳效果。\n\n是否继续上传？', '图片比例提示').then((confirmed) => {
+                                if (!confirmed) return;
+                            });
                         }
                         
                         const canvas = document.createElement('canvas');
@@ -4179,7 +4246,7 @@
                     };
                     
                     img.onerror = function() {
-                        alert('图片加载失败，请选择有效的图片文件！');
+                        customAlert('图片加载失败，请选择有效的图片文件！', '图片加载错误');
                     };
                     
                     img.src = URL.createObjectURL(file);
@@ -4341,6 +4408,80 @@
                 settingsPanel.classList.remove('active');
             });
             
+            // 存储管理功能
+            const refreshStorageBtn = document.getElementById('refreshStorageBtn');
+            const cleanupStorageBtn = document.getElementById('cleanupStorageBtn');
+            const storageDetails = document.getElementById('storageDetails');
+            
+            function updateStorageStats() {
+                const storageInfo = analyzeStorageUsage();
+                
+                document.getElementById('storageUsage').textContent = storageInfo.totalSizeFormatted;
+                document.getElementById('storageItemCount').textContent = storageInfo.itemCount;
+                
+                const statusElement = document.getElementById('storageStatus');
+                if (storageInfo.quotaAvailable) {
+                    statusElement.textContent = '正常';
+                    statusElement.style.color = 'var(--success-color)';
+                } else {
+                    statusElement.textContent = '空间不足';
+                    statusElement.style.color = 'var(--error-color)';
+                }
+                
+                // 更新存储详情
+                const storageItemsList = document.getElementById('storageItemsList');
+                storageItemsList.innerHTML = '';
+                
+                Object.entries(storageInfo.items).forEach(([key, item]) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.1);';
+                    
+                    const keySpan = document.createElement('span');
+                    keySpan.textContent = key;
+                    keySpan.style.cssText = 'font-weight: 500; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+                    
+                    const sizeSpan = document.createElement('span');
+                    sizeSpan.textContent = item.sizeFormatted;
+                    sizeSpan.style.cssText = 'color: var(--primary-color); font-weight: 500;';
+                    
+                    itemDiv.appendChild(keySpan);
+                    itemDiv.appendChild(sizeSpan);
+                    storageItemsList.appendChild(itemDiv);
+                });
+            }
+            
+            function toggleStorageDetails() {
+                storageDetails.style.display = storageDetails.style.display === 'none' ? 'block' : 'none';
+            }
+            
+            async function performCleanup() {
+                const confirmed = await customConfirm('确定要清理存储空间吗？这将删除过大的背景图片、过期的会话数据和临时文件。', '存储清理确认');
+                if (confirmed) {
+                    const cleanupResult = cleanupStorage();
+                    updateStorageStats();
+                    
+                    if (cleanupResult.cleanedItems.length > 0) {
+                        showNotification(`存储清理完成，释放了 ${cleanupResult.freedSizeFormatted}，清理了 ${cleanupResult.cleanedItems.length} 个项目`, 'success');
+                    } else {
+                        showNotification('存储空间已优化，无需清理', 'info');
+                    }
+                }
+            }
+            
+            refreshStorageBtn.addEventListener('click', function() {
+                updateStorageStats();
+                showNotification('存储统计已刷新', 'info');
+            });
+            
+            cleanupStorageBtn.addEventListener('click', performCleanup);
+            
+            // 点击存储详情区域显示/隐藏详情
+            document.getElementById('storageUsage').addEventListener('click', toggleStorageDetails);
+            document.getElementById('storageItemCount').addEventListener('click', toggleStorageDetails);
+            
+            // 初始化存储统计
+            setTimeout(updateStorageStats, 100);
+            
             const changeAiAvatarBtn = document.getElementById('changeAiAvatarBtn');
         const resetAiAvatarBtn = document.getElementById('resetAiAvatarBtn');
         const aiAvatarUpload = document.getElementById('aiAvatarUpload');
@@ -4426,19 +4567,32 @@
                         return;
                     }
                     
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        const dataURL = event.target.result;
+                    // 检查文件大小，超过2MB的图片需要压缩
+                    const maxSize = 2 * 1024 * 1024; // 2MB
+                    if (file.size > maxSize) {
+                        compressImage(file, function(compressedDataURL) {
+                            if (currentUser) {
+                                currentUser.chatBackground = compressedDataURL;
+                                saveUserData();
+                                updateChatBackgroundUI();
+                                showNotification('聊天背景设置成功（已自动压缩）', 'success');
+                            }
+                        });
+                    } else {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            const dataURL = event.target.result;
+                            
+                            if (currentUser) {
+                                currentUser.chatBackground = dataURL;
+                                saveUserData();
+                                updateChatBackgroundUI();
+                                showNotification('聊天背景设置成功', 'success');
+                            }
+                        };
                         
-                        if (currentUser) {
-                            currentUser.chatBackground = dataURL;
-                            saveUserData();
-                            updateChatBackgroundUI();
-                            showNotification('聊天背景设置成功', 'success');
-                        }
-                    };
-                    
-                    reader.readAsDataURL(file);
+                        reader.readAsDataURL(file);
+                    }
                 });
             }
             
@@ -4850,8 +5004,9 @@
             showNotification('注册成功', 'success');
         }
         
-        function logoutUser() {
-            if (confirm('确定要退出登录吗？')) {
+        async function logoutUser() {
+            const confirmed = await customConfirm('确定要退出登录吗？', '退出登录确认');
+            if (confirmed) {
                 localStorage.removeItem('sakuraAI_currentUser');
                 currentUser = null;
                 
@@ -5134,7 +5289,7 @@
             updateBatteryUI();
         }
         
-        function useRechargeCode() {
+        async function useRechargeCode() {
             const code = rechargeCode.value.trim();
             
             if (!code) {
@@ -5224,7 +5379,8 @@
                         : `确定要激活 时长卡 吗？有效期: ${data.timeCardDuration}天`
                     : `确定要充值 ${data.battery.toFixed(3)} 电池吗？`;
                 
-                if (confirm(confirmMessage)) {
+                const confirmed = await customConfirm(confirmMessage, '充值确认');
+                if (confirmed) {
                     usedCodes.push(code);
                     localStorage.setItem('sakuraAI_usedRechargeCodes', JSON.stringify(usedCodes));
                     
@@ -5752,8 +5908,9 @@
             sendMessage();
         }
         
-        function deleteMessage(index) {
-            if (!confirm('确定要删除这条消息吗？此操作不可恢复。')) return;
+        async function deleteMessage(index) {
+            const confirmed = await customConfirm('确定要删除这条消息吗？此操作不可恢复。', '删除消息确认');
+            if (!confirmed) return;
             
             const conversation = getCurrentConversation();
             if (!conversation || index >= conversation.messages.length) return;
@@ -6058,7 +6215,8 @@
                 return;
             }
             
-            if (!confirm('确定要重新生成这条AI回复吗？')) return;
+            const confirmed = await customConfirm('确定要重新生成这条AI回复吗？', '重新生成确认');
+            if (!confirmed) return;
             
             if (apis.length === 0) {
                 showNotification('请先激活', 'error');
@@ -6176,7 +6334,7 @@
             }
         }
         
-        function undoMessagePair(e) {
+        async function undoMessagePair(e) {
             const index = parseInt(e.target.dataset.index);
             const conversation = getCurrentConversation();
             
@@ -6186,7 +6344,8 @@
             if (aiMessage.role !== 'assistant') return;
             
             if (index > 0 && conversation.messages[index - 1].role === 'user') {
-                if (confirm('确定要撤回这一轮对话吗？用户消息将复制到输入框中。')) {
+                const confirmed = await customConfirm('确定要撤回这一轮对话吗？用户消息将复制到输入框中。', '撤回对话确认');
+                if (confirmed) {
                     const userMessage = conversation.messages[index - 1];
                     const userMessageContent = userMessage.content;
                     
@@ -6207,7 +6366,8 @@
                     showNotification('对话已撤回，用户消息已复制到输入框', 'success');
                 }
             } else {
-                if (confirm('确定要撤回这条AI消息吗？')) {
+                const confirmed = await customConfirm('确定要撤回这条AI消息吗？', '撤回消息确认');
+                if (confirmed) {
                     conversation.messages.splice(index, 1);
                     conversation.updatedAt = new Date().toISOString();
                     
@@ -6771,7 +6931,35 @@
                 return;
             }
             
-            if (!confirm('确定要删除这个预设吗？')) return;
+            customConfirm('确定要删除这个预设吗？', '删除预设确认').then(confirmed => {
+                if (!confirmed) return;
+                
+                const index = parseInt(selectedIndex);
+                customPresets.splice(index, 1);
+                
+                const conversation = getCurrentConversation();
+                if (conversation && conversation.presetIndex === index) {
+                    conversation.presetIndex = -1;
+                    conversation.presetContent = '';
+                    conversation.aiNickname = '';
+                    conversation.userNickname = '';
+                }
+                
+                currentUser.customPresets = customPresets;
+                saveUserData();
+                
+                loadPresetSelect();
+                presetSelect.value = "-1";
+                handlePresetSelectChange();
+                renderPresetList();
+                
+                updatePresetStatusDisplay();
+                updateCostEstimate();
+                updateContextCostInfo();
+                renderMessages();
+                showNotification('预设已删除', 'success');
+            });
+            if (!confirmed) return;
             
             const index = parseInt(selectedIndex);
             customPresets.splice(index, 1);
@@ -6856,7 +7044,7 @@
                 }
                 
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = async function(e) {
                     try {
                         const importData = JSON.parse(e.target.result);
                         
@@ -6895,7 +7083,8 @@
                             importMessage += '\n\n这将添加新的预设指令到现有列表中。';
                         }
                         
-                        if (!confirm(importMessage)) {
+                        const confirmed = await customConfirm(importMessage, '导入预设确认');
+                        if (!confirmed) {
                             return;
                         }
                         
@@ -6990,8 +7179,9 @@
             showNotification('对话已重命名', 'success');
         }
         
-        function deleteConversation(conversationId) {
-            if (!confirm('确定要删除这个对话吗？')) return;
+        async function deleteConversation(conversationId) {
+            const confirmed = await customConfirm('确定要删除这个对话吗？', '删除对话确认');
+            if (!confirmed) return;
             
             let conversationTitle = '';
             for (const mode in conversations) {
@@ -7727,6 +7917,323 @@
                 creditsModal.style.display = 'none';
             }
         });
+        
+        // 图片压缩函数
+        function compressImage(file, callback) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = function() {
+                // 计算压缩比例，限制最大尺寸为1920x1080
+                const maxWidth = 1920;
+                const maxHeight = 1080;
+                let { width, height } = img;
+                
+                if (width > maxWidth || height > maxHeight) {
+                    if (width > height) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    } else {
+                        width = Math.round((width * maxHeight) / height);
+                        height = maxHeight;
+                    }
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                // 绘制压缩后的图片
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // 转换为JPEG格式，质量为0.7（70%）
+                const compressedDataURL = canvas.toDataURL('image/jpeg', 0.7);
+                
+                // 检查压缩后的大小，如果仍然过大，进一步压缩
+                if (compressedDataURL.length > 1.5 * 1024 * 1024) { // 1.5MB
+                    const furtherCompressedDataURL = canvas.toDataURL('image/jpeg', 0.5);
+                    callback(furtherCompressedDataURL);
+                } else {
+                    callback(compressedDataURL);
+                }
+            };
+            
+            img.onerror = function() {
+                // 如果压缩失败，使用原始文件
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    callback(event.target.result);
+                };
+                reader.readAsDataURL(file);
+            };
+            
+            img.src = URL.createObjectURL(file);
+        }
+        
+        // 存储空间管理函数
+        function analyzeStorageUsage() {
+            const storageData = {};
+            let totalSize = 0;
+            
+            // 分析所有localStorage键值对
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                const size = new Blob([value]).size;
+                
+                storageData[key] = {
+                    size: size,
+                    sizeFormatted: formatFileSize(size),
+                    value: key.startsWith('sakuraAI_') ? '应用数据' : value.substring(0, 100) + (value.length > 100 ? '...' : '')
+                };
+                
+                totalSize += size;
+            }
+            
+            return {
+                totalSize: totalSize,
+                totalSizeFormatted: formatFileSize(totalSize),
+                items: storageData,
+                itemCount: localStorage.length,
+                quotaAvailable: checkStorageQuota()
+            };
+        }
+        
+        function checkStorageQuota() {
+            try {
+                const testKey = 'storage_quota_test';
+                const testValue = 'x'.repeat(1024); // 1KB测试数据
+                
+                for (let i = 0; i < 1024; i++) { // 尝试写入1MB数据
+                    localStorage.setItem(testKey + i, testValue);
+                }
+                
+                // 清理测试数据
+                for (let i = 0; i < 1024; i++) {
+                    localStorage.removeItem(testKey + i);
+                }
+                
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+        
+        function cleanupStorage() {
+            try {
+                let cleanedItems = [];
+                let totalFreed = 0;
+                
+                // 清理过大的聊天背景图片
+                const users = JSON.parse(localStorage.getItem('sakuraAI_users') || '[]');
+                users.forEach(user => {
+                    if (user.chatBackground && user.chatBackground.length > 0.5 * 1024 * 1024) { // 超过0.5MB
+                        const oldSize = user.chatBackground.length;
+                        user.chatBackground = null;
+                        cleanedItems.push(`用户 ${user.username} 的背景图片`);
+                        totalFreed += oldSize;
+                    }
+                });
+                
+                if (cleanedItems.length > 0) {
+                    localStorage.setItem('sakuraAI_users', JSON.stringify(users));
+                }
+                
+                // 清理过期的会话数据
+                const currentUserData = JSON.parse(localStorage.getItem('sakuraAI_currentUser') || '{}');
+                if (currentUserData.conversations) {
+                    const maxConversations = 30; // 保留最多30个会话
+                    Object.keys(currentUserData.conversations).forEach(mode => {
+                        if (currentUserData.conversations[mode].length > maxConversations) {
+                            const oldCount = currentUserData.conversations[mode].length;
+                            currentUserData.conversations[mode] = 
+                                currentUserData.conversations[mode]
+                                    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+                                    .slice(0, maxConversations);
+                            const newCount = currentUserData.conversations[mode].length;
+                            cleanedItems.push(`${mode}模式会话 (从${oldCount}个减少到${newCount}个)`);
+                        }
+                    });
+                }
+                
+                // 清理过期的消息内容（保留最近100条消息）
+                if (currentUserData.conversations) {
+                    Object.keys(currentUserData.conversations).forEach(mode => {
+                        currentUserData.conversations[mode].forEach(conversation => {
+                            if (conversation.messages && conversation.messages.length > 100) {
+                                const oldCount = conversation.messages.length;
+                                conversation.messages = conversation.messages.slice(-100);
+                                const newCount = conversation.messages.length;
+                                cleanedItems.push(`对话"${conversation.title}"的消息 (从${oldCount}条减少到${newCount}条)`);
+                            }
+                        });
+                    });
+                }
+                
+                if (Object.keys(currentUserData).length > 0) {
+                    localStorage.setItem('sakuraAI_currentUser', JSON.stringify(currentUserData));
+                }
+                
+                // 清理过期的充值码记录
+                const usedCodes = JSON.parse(localStorage.getItem('sakuraAI_usedRechargeCodes') || '[]');
+                if (usedCodes.length > 100) {
+                    const oldCount = usedCodes.length;
+                    const now = new Date().getTime();
+                    const oneDay = 24 * 60 * 60 * 1000;
+                    
+                    // 保留最近100条或24小时内的记录
+                    const filteredCodes = usedCodes
+                        .filter((code, index) => index >= usedCodes.length - 100)
+                        .slice(-50); // 最终保留50条
+                    
+                    localStorage.setItem('sakuraAI_usedRechargeCodes', JSON.stringify(filteredCodes));
+                    cleanedItems.push(`已使用充值码记录 (从${oldCount}条减少到${filteredCodes.length}条)`);
+                }
+                
+                // 清理临时数据
+                const tempKeys = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('temp_') || key.includes('_temp') || key === 'messageInputHeight') {
+                        tempKeys.push(key);
+                    }
+                }
+                
+                tempKeys.forEach(key => {
+                    localStorage.removeItem(key);
+                    cleanedItems.push(`临时数据: ${key}`);
+                });
+                
+                // 显示清理结果
+                if (cleanedItems.length > 0) {
+                    const freedSize = formatFileSize(totalFreed);
+                    console.log(`存储清理完成，释放了 ${freedSize}，清理了 ${cleanedItems.length} 个项目`);
+                    console.log('清理的项目:', cleanedItems);
+                } else {
+                    console.log('存储空间已优化，无需清理');
+                }
+                
+                return {
+                    cleanedItems: cleanedItems,
+                    totalFreed: totalFreed,
+                    freedSizeFormatted: formatFileSize(totalFreed)
+                };
+                
+            } catch (error) {
+                console.warn('存储清理失败:', error);
+                return {
+                    cleanedItems: [],
+                    totalFreed: 0,
+                    freedSizeFormatted: '0 B'
+                };
+            }
+        }
+        
+        // 自定义确认和提示函数
+        function customConfirm(message, title = '确认操作') {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customConfirmModal');
+                const messageElement = document.getElementById('confirmModalMessage');
+                const titleElement = document.getElementById('confirmModalTitle');
+                const okBtn = document.getElementById('confirmModalOk');
+                const cancelBtn = document.getElementById('confirmModalCancel');
+                const closeBtn = document.getElementById('closeConfirmModal');
+                
+                // 设置内容和标题
+                messageElement.textContent = message;
+                titleElement.textContent = title;
+                
+                // 显示模态框
+                modal.style.display = 'flex';
+                
+                // 处理确认
+                const handleConfirm = () => {
+                    modal.style.display = 'none';
+                    resolve(true);
+                    removeEventListeners();
+                };
+                
+                // 处理取消
+                const handleCancel = () => {
+                    modal.style.display = 'none';
+                    resolve(false);
+                    removeEventListeners();
+                };
+                
+                // 移除事件监听器
+                const removeEventListeners = () => {
+                    okBtn.removeEventListener('click', handleConfirm);
+                    cancelBtn.removeEventListener('click', handleCancel);
+                    closeBtn.removeEventListener('click', handleCancel);
+                    modal.removeEventListener('click', handleOutsideClick);
+                };
+                
+                // 点击模态框外部关闭
+                const handleOutsideClick = (e) => {
+                    if (e.target === modal) {
+                        handleCancel();
+                    }
+                };
+                
+                // 添加事件监听器
+                okBtn.addEventListener('click', handleConfirm);
+                cancelBtn.addEventListener('click', handleCancel);
+                closeBtn.addEventListener('click', handleCancel);
+                modal.addEventListener('click', handleOutsideClick);
+            });
+        }
+        
+        function customAlert(message, title = '提示') {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customAlertModal');
+                const messageElement = document.getElementById('alertModalMessage');
+                const titleElement = document.getElementById('alertModalTitle');
+                const okBtn = document.getElementById('alertModalOk');
+                const closeBtn = document.getElementById('closeAlertModal');
+                
+                // 设置内容和标题
+                messageElement.textContent = message;
+                titleElement.textContent = title;
+                
+                // 显示模态框
+                modal.style.display = 'flex';
+                
+                // 处理确认
+                const handleConfirm = () => {
+                    modal.style.display = 'none';
+                    resolve();
+                    removeEventListeners();
+                };
+                
+                // 移除事件监听器
+                const removeEventListeners = () => {
+                    okBtn.removeEventListener('click', handleConfirm);
+                    closeBtn.removeEventListener('click', handleConfirm);
+                    modal.removeEventListener('click', handleOutsideClick);
+                };
+                
+                // 点击模态框外部关闭
+                const handleOutsideClick = (e) => {
+                    if (e.target === modal) {
+                        handleConfirm();
+                    }
+                };
+                
+                // 添加事件监听器
+                okBtn.addEventListener('click', handleConfirm);
+                closeBtn.addEventListener('click', handleConfirm);
+                modal.addEventListener('click', handleOutsideClick);
+            });
+        }
+        
+        // 在应用启动时检查存储空间
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (!checkStorageQuota()) {
+                    cleanupStorage();
+                }
+            }, 2000);
+        });
     </script>
     
 
@@ -7805,6 +8312,39 @@
                     <i class="fas fa-save"></i>
                     保存设置
                 </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 自定义确认模态框 -->
+    <div class="modal" id="customConfirmModal" style="z-index: 2000;">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="confirmModalTitle">确认操作</h3>
+                <button class="modal-close" id="closeConfirmModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmModalMessage" style="margin-bottom: 20px; line-height: 1.5;">确定要执行此操作吗？</p>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn btn-secondary" id="confirmModalCancel">取消</button>
+                    <button class="btn btn-primary" id="confirmModalOk">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 自定义提示模态框 -->
+    <div class="modal" id="customAlertModal" style="z-index: 2000;">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="alertModalTitle">提示</h3>
+                <button class="modal-close" id="closeAlertModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="alertModalMessage" style="margin-bottom: 20px; line-height: 1.5;"></p>
+                <div style="display: flex; justify-content: flex-end;">
+                    <button class="btn btn-primary" id="alertModalOk">确定</button>
+                </div>
             </div>
         </div>
     </div>
