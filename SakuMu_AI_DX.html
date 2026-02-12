@@ -1051,6 +1051,12 @@
             opacity: 1;
         }
         
+        @media (max-width: 768px) {
+            .conversation-actions {
+                opacity: 1 !important;
+            }
+        }
+        
         .conversation-action-btn {
             background: none;
             border: none;
@@ -5182,6 +5188,9 @@
                 
                 if (window.backgroundScrollHandler) {
                     window.removeEventListener('scroll', window.backgroundScrollHandler);
+                    if (messagesContainer) {
+                        messagesContainer.removeEventListener('scroll', window.backgroundScrollHandler);
+                    }
                 }
                 
                 window.backgroundScrollHandler = function() {
@@ -5193,7 +5202,13 @@
                     }, 50);
                 };
                 
+                
                 window.addEventListener('scroll', window.backgroundScrollHandler, { passive: true });
+                
+                
+                if (messagesContainer) {
+                    messagesContainer.addEventListener('scroll', window.backgroundScrollHandler, { passive: true });
+                }
                 
                 
                 window.backgroundResizeHandler = function() {
