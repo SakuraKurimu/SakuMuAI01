@@ -2303,6 +2303,53 @@
             width: 100%;
             align-items: flex-end;
         }
+
+        /* 文档分析模式下的上传侧边栏 */
+        .document-upload-sidebar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background-color: rgba(124, 58, 237, 0.05);
+            border-radius: 8px;
+            border: 1px dashed var(--border-color);
+            min-width: 80px;
+            transition: all 0.2s ease;
+        }
+
+        .document-upload-sidebar:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(124, 58, 237, 0.1);
+        }
+
+        .upload-prompt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .upload-prompt i {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .upload-sidebar-btn {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            border-radius: 6px;
+        }
+
+        .document-info-sidebar {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 80px;
+            word-break: break-all;
+        }
         
         .message-input-container {
             flex: 1;
@@ -2496,6 +2543,24 @@
             .action-buttons {
                 display: flex;
                 gap: 10px;
+            }
+
+            /* 移动端文档上传侧边栏样式 */
+            .document-upload-sidebar {
+                flex-direction: row;
+                min-width: auto;
+                padding: 8px;
+                gap: 6px;
+            }
+
+            .upload-prompt {
+                flex-direction: row;
+                gap: 6px;
+            }
+
+            .document-info-sidebar {
+                max-width: 100px;
+                font-size: 0.6rem;
             }
 
             .btn {
@@ -3013,8 +3078,8 @@
                     <div class="document-upload" id="documentUpload" style="display: none;">
                         <i class="fas fa-cloud-upload-alt fa-3x" style="color: var(--primary-color); margin-bottom: 15px;"></i>
                         <h3>上传文档进行分析</h3>
-                        <p class="document-info">支持 .txt 和 .json 文件格式</p>
-                        <input type="file" id="fileInput" accept=".txt,.json" style="display: none;">
+                        <p class="document-info">支持 .txt, .json, .pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .csv, .html, .xml, .rtf 文件格式</p>
+                        <input type="file" id="fileInput" accept=".txt,.json,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.html,.htm,.xml,.rtf" style="display: none;">
                         <button class="btn btn-primary" style="margin-top: 15px;" id="uploadDocumentBtn">
                             <i class="fas fa-upload"></i>
                             选择文件
@@ -3044,6 +3109,18 @@
                     
                     <div class="input-container">
                         <div class="input-area">
+                            <!-- 文档分析模式下的上传区域 -->
+                            <div class="document-upload-sidebar" id="documentUploadSidebar" style="display: none;">
+                                <div class="upload-prompt">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>上传文档</span>
+                                </div>
+                                <button class="btn btn-primary upload-sidebar-btn" id="uploadDocumentSidebarBtn">
+                                    <i class="fas fa-upload"></i>
+                                </button>
+                                <div class="document-info-sidebar" id="documentInfoSidebar"></div>
+                            </div>
+                            
                             <div class="input-buttons">
                                 <button class="ai-first-button" id="aiFirstButton" style="display: none;">
                                     <i class="fas fa-microphone-alt"></i>
@@ -3508,6 +3585,9 @@
         const uploadDocumentBtn = document.getElementById('uploadDocumentBtn');
         const fileInput = document.getElementById('fileInput');
         const documentInfo = document.getElementById('documentInfo');
+        const documentUploadSidebar = document.getElementById('documentUploadSidebar');
+        const uploadDocumentSidebarBtn = document.getElementById('uploadDocumentSidebarBtn');
+        const documentInfoSidebar = document.getElementById('documentInfoSidebar');
         const settingsBtn = document.getElementById('settingsBtn');
         const settingsPanel = document.getElementById('settingsPanel');
         const closeSettingsBtn = document.getElementById('closeSettingsBtn');
@@ -4471,6 +4551,7 @@
             saveRenameBtn.addEventListener('click', saveConversationRename);
             
             uploadDocumentBtn.addEventListener('click', () => fileInput.click());
+            uploadDocumentSidebarBtn.addEventListener('click', () => fileInput.click());
             fileInput.addEventListener('change', handleFileUpload);
             
             settingsBtn.addEventListener('click', function(e) {
@@ -5598,9 +5679,11 @@
             });
             
             if (mode === 'document') {
-                documentUpload.style.display = 'block';
+                documentUpload.style.display = 'none'; // 隐藏原本的上传区域
+                documentUploadSidebar.style.display = 'flex'; // 显示侧边栏上传功能
             } else {
                 documentUpload.style.display = 'none';
+                documentUploadSidebar.style.display = 'none';
             }
             
             renderConversationList();
@@ -5681,6 +5764,14 @@
                             已上传: ${conversation.document.name} (${formatFileSize(conversation.document.size)})
                         </div>
                     `;
+                    
+                    documentInfoSidebar.innerHTML = `
+                        <div style="color: var(--primary-color); font-weight: 600;">
+                            <i class="fas fa-check"></i> ${conversation.document.name}
+                        </div>
+                    `;
+                } else if (currentMode === 'document') {
+                    documentInfoSidebar.innerHTML = '';
                 }
             }
         }
@@ -7450,14 +7541,32 @@
             if (!file) return;
             
             const fileType = file.type;
-            const validTypes = ['text/plain', 'application/json'];
-            const validExtensions = ['.txt', '.json'];
+            const validTypes = [
+                'text/plain', 
+                'application/json',
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'text/csv',
+                'text/html',
+                'text/xml',
+                'application/rtf'
+            ];
+            const validExtensions = [
+                '.txt', '.json', '.pdf', '.doc', '.docx', 
+                '.xls', '.xlsx', '.ppt', '.pptx', '.csv', 
+                '.html', '.htm', '.xml', '.rtf'
+            ];
             
             const fileName = file.name.toLowerCase();
             const isValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
             
             if (!validTypes.includes(fileType) && !isValidExtension) {
-                showNotification('只支持 .txt 和 .json 文件', 'error');
+                showNotification('支持的文件格式: .txt, .json, .pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .csv, .html, .xml, .rtf', 'error');
                 return;
             }
             
@@ -7474,10 +7583,18 @@
                         content: content
                     };
                     
+                    // 更新主上传区域显示
                     documentInfo.innerHTML = `
                         <div style="background: rgba(124, 58, 237, 0.1); padding: 10px; border-radius: 6px;">
                             <i class="fas fa-file"></i> 
                             已上传: ${file.name} (${formatFileSize(file.size)})
+                        </div>
+                    `;
+                    
+                    // 更新侧边栏显示
+                    documentInfoSidebar.innerHTML = `
+                        <div style="color: var(--primary-color); font-weight: 600;">
+                            <i class="fas fa-check"></i> ${file.name}
                         </div>
                     `;
                     
