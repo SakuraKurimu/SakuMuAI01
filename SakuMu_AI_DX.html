@@ -1139,82 +1139,6 @@
             white-space: nowrap;
         }
         
-        .load-more-container {
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .load-more-btn {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .load-more-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-        
-        .load-more-btn:active {
-            transform: translateY(0);
-        }
-        
-        .new-message-notification {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 25px;
-            margin: 10px auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            max-width: 300px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            animation: slideInUp 0.3s ease-out;
-        }
-        
-        .new-message-notification span {
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        
-        .new-message-notification button {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 4px 12px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.2s ease;
-        }
-        
-        .new-message-notification button:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-1px);
-        }
-        
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
         .message-bubble {
             max-width: 70%;
             padding: 12px 16px;
@@ -5043,10 +4967,6 @@
             
             aiFirstButton.addEventListener('click', aiFirst);
             continueButton.addEventListener('click', continueConversation);
-            
-            // 初始化滚动监听器
-            setupScrollListener();
-            optimizeLoadMoreButton();
         }
         
         function handleKeyboardShortcuts(e) {
@@ -5953,19 +5873,9 @@
             updateConversationDropdowns();
         }
         
-        // 虚拟滚动和性能优化相关变量
-        let visibleMessages = [];
-        let messagesPerPage = 20;
-        let currentPage = 0;
-        let totalPages = 0;
-        let isScrolling = false;
-        let scrollTimeout = null;
-        
-        // 消息缓存，避免重复渲染
-        const messageCache = new Map();
-        
-        function renderMessages(forceRender = false, preserveScrollPosition = false) {
+        function renderMessages() {
             const conversation = getCurrentConversation();
+            messagesContainer.innerHTML = '';
             
             if (!conversation || conversation.messages.length === 0) {
                 messagesContainer.innerHTML = `
@@ -5975,395 +5885,146 @@
                         <p>在下方输入框发送消息开始对话</p>
                     </div>
                 `;
-                visibleMessages = [];
                 return;
             }
-            
-            const messageCount = conversation.messages.length;
-            
-            // 如果消息数量较少，直接全量渲染
-            if (messageCount <= messagesPerPage * 2) {
-                renderAllMessages(conversation);
-                return;
-            }
-            
-            // 计算分页信息
-            totalPages = Math.ceil(messageCount / messagesPerPage);
-            
-            // 如果是强制渲染或首次加载，显示最后几页
-            if (forceRender || currentPage === 0) {
-                currentPage = Math.max(1, totalPages - 2);
-            }
-            
-            // 计算可见消息范围
-            const startIndex = Math.max(0, (currentPage - 1) * messagesPerPage);
-            const endIndex = Math.min(messageCount, currentPage * messagesPerPage);
-            
-            // 获取当前可见的消息
-            const newVisibleMessages = conversation.messages.slice(startIndex, endIndex);
-            
-            // 如果可见消息没有变化且不是强制渲染，则跳过
-            if (!forceRender && JSON.stringify(visibleMessages) === JSON.stringify(newVisibleMessages)) {
-                return;
-            }
-            
-            visibleMessages = newVisibleMessages;
-            
-            // 保存当前滚动位置（如果需要保持）
-            let scrollPosition = 0;
-            if (preserveScrollPosition) {
-                scrollPosition = messagesContainer.scrollTop;
-            }
-            
-            // 使用文档片段进行批量DOM操作
-            const fragment = document.createDocumentFragment();
-            
-            newVisibleMessages.forEach((message, relativeIndex) => {
-                const absoluteIndex = startIndex + relativeIndex;
-                const messageElement = createMessageElement(message, absoluteIndex, conversation);
-                fragment.appendChild(messageElement);
-            });
-            
-            // 清空并重新渲染
-            messagesContainer.innerHTML = '';
-            messagesContainer.appendChild(fragment);
-            
-            // 添加加载更多按钮（如果不是最后一页）
-            if (currentPage < totalPages) {
-                const loadMoreBtn = document.createElement('div');
-                loadMoreBtn.className = 'load-more-container';
-                loadMoreBtn.innerHTML = `
-                    <button class="load-more-btn" onclick="loadMoreMessages()">
-                        <i class="fas fa-chevron-up"></i>
-                        加载更多消息 (${messageCount - endIndex} 条)
-                    </button>
-                `;
-                messagesContainer.insertBefore(loadMoreBtn, messagesContainer.firstChild);
-            }
-            
-            // 恢复滚动位置或滚动到底部
-            setTimeout(() => {
-                if (preserveScrollPosition && scrollPosition > 0) {
-                    // 恢复之前的滚动位置
-                    messagesContainer.scrollTop = scrollPosition;
-                } else if (forceRender || currentPage >= totalPages - 1) {
-                    // 只有在新消息或查看最新时才滚动到底部
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }
-            }, 50);
-        }
-        
-        function renderAllMessages(conversation) {
-            messagesContainer.innerHTML = '';
-            const fragment = document.createDocumentFragment();
             
             conversation.messages.forEach((message, index) => {
-                const messageElement = createMessageElement(message, index, conversation);
-                fragment.appendChild(messageElement);
-            });
-            
-            messagesContainer.appendChild(fragment);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-        
-        function createMessageElement(message, index, conversation) {
-            // 检查缓存
-            const cacheKey = `${conversation.id}_${index}`;
-            if (messageCache.has(cacheKey)) {
-                return messageCache.get(cacheKey).cloneNode(true);
-            }
-            
-            const messageContainer = document.createElement('div');
-            messageContainer.className = `message-container ${message.role === 'user' ? 'user-message-container' : 'ai-message-container'}`;
-            messageContainer.dataset.index = index;
-            
-            const wordCount = message.content.length;
-            const formattedTime = formatDateTime(new Date(message.timestamp));
-            const displayName = getDisplayName(message.role, conversation);
-            const htmlContent = convertMarkdownToHtml(message.content);
-            const isFailed = conversation.failedMessages && conversation.failedMessages.includes(index);
-            
-            const userAvatar = getUserAvatar();
-            const aiAvatar = getAiAvatar();
-            const avatarUrl = message.role === 'user' ? userAvatar : aiAvatar;
-            const avatarInitial = message.role === 'user' ? (conversation.userNickname || '您').charAt(0) : (conversation.aiNickname || 'AI').charAt(0);
-            
-            if (message.role === 'user') {
-                messageContainer.innerHTML = `
-                    <div class="message-bubble user-message-bubble">
-                        <div class="message-content-wrapper">
-                            <div class="message-header">
-                                <span>${formattedTime}</span>
-                            </div>
-                            <div class="message-content">${htmlContent}</div>
-                            <div class="message-footer">
-                                <span>字数: ${wordCount}</span>
-                                <span>消耗: ${message.batteryCost ? message.batteryCost.toFixed(3) : '0.000'} 电池</span>
-                            </div>
-                            <div class="message-actions" id="messageActions-${index}"></div>
-                            <div class="edit-message-container" id="editContainer-${index}">
-                                <textarea class="edit-textarea" id="editTextarea-${index}">${message.content}</textarea>
-                                <div class="edit-actions">
-                                    <button class="message-action-btn" data-action="save-edit" data-index="${index}">保存</button>
-                                    <button class="message-action-btn" data-action="cancel-edit" data-index="${index}">取消</button>
-                                    <button class="message-action-btn delete" data-action="delete-message" data-index="${index}">删除</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="message-avatar-container">
-                        <div class="message-avatar" style="${avatarUrl ? `background-image: url(${avatarUrl}); background-size: cover; background-position: center;` : ''}">
-                            ${avatarUrl ? '' : avatarInitial}
-                        </div>
-                        <div class="message-nickname">${displayName}</div>
-                    </div>
-                `;
-            } else {
-                messageContainer.innerHTML = `
-                    <div class="message-avatar-container">
-                        <div class="message-avatar" style="${avatarUrl ? `background-image: url(${avatarUrl}); background-size: cover; background-position: center;` : ''}">
-                            ${avatarUrl ? '' : avatarInitial}
-                        </div>
-                        <div class="message-nickname">${displayName}</div>
-                    </div>
-                    <div class="message-bubble ai-message-bubble">
-                        <div class="message-content-wrapper">
-                            <div class="message-header">
-                                <span>${formattedTime}</span>
-                            </div>
-                            <div class="message-content">${htmlContent}</div>
-                            <div class="message-footer">
-                                <span>字数: ${wordCount}</span>
-                                <span>消耗: ${message.batteryCost ? message.batteryCost.toFixed(3) : '0.000'} 电池</span>
-                            </div>
-                            <div class="message-actions" id="messageActions-${index}"></div>
-                            <div class="edit-message-container" id="editContainer-${index}">
-                                <textarea class="edit-textarea" id="editTextarea-${index}">${message.content}</textarea>
-                                <div class="edit-actions">
-                                    <button class="message-action-btn" data-action="save-edit" data-index="${index}">保存</button>
-                                    <button class="message-action-btn" data-action="cancel-edit" data-index="${index}">取消</button>
-                                    <button class="message-action-btn delete" data-action="delete-message" data-index="${index}">删除</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            // 添加事件监听器
-            setupMessageEventListeners(messageContainer, message, index, conversation);
-            
-            // 缓存消息元素
-            messageCache.set(cacheKey, messageContainer.cloneNode(true));
-            
-            return messageContainer;
-        }
-        
-        function setupMessageEventListeners(container, message, index, conversation) {
-            const messageActions = container.querySelector(`#messageActions-${index}`);
-            
-            if (message.role === 'assistant') {
-                const regenerateBtn = document.createElement('button');
-                regenerateBtn.className = 'message-action-btn regenerate';
-                regenerateBtn.innerHTML = '<i class="fas fa-redo-alt"></i> 重新生成';
-                regenerateBtn.dataset.index = index;
-                regenerateBtn.addEventListener('click', regenerateAIResponse);
+                const messageContainer = document.createElement('div');
+                messageContainer.className = `message-container ${message.role === 'user' ? 'user-message-container' : 'ai-message-container'}`;
+                messageContainer.dataset.index = index;
                 
-                const copyBtn = document.createElement('button');
-                copyBtn.className = 'message-action-btn copy';
-                copyBtn.innerHTML = '<i class="fas fa-copy"></i> 复制';
-                copyBtn.dataset.index = index;
-                copyBtn.addEventListener('click', copyAIMessage);
+                const wordCount = message.content.length;
                 
-                const undoBtn = document.createElement('button');
-                undoBtn.className = 'message-action-btn undo';
-                undoBtn.innerHTML = '<i class="fas fa-undo"></i> 撤回';
-                undoBtn.dataset.index = index;
-                undoBtn.addEventListener('click', undoMessagePair);
+                const formattedTime = formatDateTime(new Date(message.timestamp));
                 
-                messageActions.appendChild(regenerateBtn);
-                messageActions.appendChild(copyBtn);
-                messageActions.appendChild(undoBtn);
-            } else if (message.role === 'user') {
+                const displayName = getDisplayName(message.role, conversation);
+                
+                const htmlContent = convertMarkdownToHtml(message.content);
+                
                 const isFailed = conversation.failedMessages && conversation.failedMessages.includes(index);
-                if (isFailed) {
-                    const resendBtn = document.createElement('button');
-                    resendBtn.className = 'message-action-btn resend';
-                    resendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 重新发送';
-                    resendBtn.dataset.index = index;
-                    resendBtn.addEventListener('click', resendMessage);
+                
+                const userAvatar = getUserAvatar();
+                const aiAvatar = getAiAvatar();
+                const avatarUrl = message.role === 'user' ? userAvatar : aiAvatar;
+                const avatarInitial = message.role === 'user' ? (conversation.userNickname || '您').charAt(0) : (conversation.aiNickname || 'AI').charAt(0);
+                
+                if (message.role === 'user') {
+                    messageContainer.innerHTML = `
+                        <div class="message-bubble user-message-bubble">
+                            <div class="message-content-wrapper">
+                                <div class="message-header">
+                                    <span>${formattedTime}</span>
+                                </div>
+                                <div class="message-content">${htmlContent}</div>
+                                <div class="message-footer">
+                                    <span>字数: ${wordCount}</span>
+                                    <span>消耗: ${message.batteryCost ? message.batteryCost.toFixed(3) : '0.000'} 电池</span>
+                                </div>
+                                <div class="message-actions" id="messageActions-${index}"></div>
+                                <div class="edit-message-container" id="editContainer-${index}">
+                                    <textarea class="edit-textarea" id="editTextarea-${index}">${message.content}</textarea>
+                                    <div class="edit-actions">
+                                        <button class="message-action-btn" data-action="save-edit" data-index="${index}">保存</button>
+                                        <button class="message-action-btn" data-action="cancel-edit" data-index="${index}">取消</button>
+                                        <button class="message-action-btn delete" data-action="delete-message" data-index="${index}">删除</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="message-avatar-container">
+                            <div class="message-avatar" style="${avatarUrl ? `background-image: url(${avatarUrl}); background-size: cover; background-position: center;` : ''}">
+                                ${avatarUrl ? '' : avatarInitial}
+                            </div>
+                            <div class="message-nickname">${displayName}</div>
+                        </div>
+                    `;
+                } else {
+                    messageContainer.innerHTML = `
+                        <div class="message-avatar-container">
+                            <div class="message-avatar" style="${avatarUrl ? `background-image: url(${avatarUrl}); background-size: cover; background-position: center;` : ''}">
+                                ${avatarUrl ? '' : avatarInitial}
+                            </div>
+                            <div class="message-nickname">${displayName}</div>
+                        </div>
+                        <div class="message-bubble ai-message-bubble">
+                            <div class="message-content-wrapper">
+                                <div class="message-header">
+                                    <span>${formattedTime}</span>
+                                </div>
+                                <div class="message-content">${htmlContent}</div>
+                                <div class="message-footer">
+                                    <span>字数: ${wordCount}</span>
+                                    <span>消耗: ${message.batteryCost ? message.batteryCost.toFixed(3) : '0.000'} 电池</span>
+                                </div>
+                                <div class="message-actions" id="messageActions-${index}"></div>
+                                <div class="edit-message-container" id="editContainer-${index}">
+                                    <textarea class="edit-textarea" id="editTextarea-${index}">${message.content}</textarea>
+                                    <div class="edit-actions">
+                                        <button class="message-action-btn" data-action="save-edit" data-index="${index}">保存</button>
+                                        <button class="message-action-btn" data-action="cancel-edit" data-index="${index}">取消</button>
+                                        <button class="message-action-btn delete" data-action="delete-message" data-index="${index}">删除</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                messagesContainer.appendChild(messageContainer);
+                
+                const messageActions = document.getElementById(`messageActions-${index}`);
+                
+                if (message.role === 'assistant') {
+                    const regenerateBtn = document.createElement('button');
+                    regenerateBtn.className = 'message-action-btn regenerate';
+                    regenerateBtn.innerHTML = '<i class="fas fa-redo-alt"></i> 重新生成';
+                    regenerateBtn.dataset.index = index;
+                    regenerateBtn.addEventListener('click', regenerateAIResponse);
                     
-                    messageActions.appendChild(resendBtn);
-                }
-            }
-            
-            const editBtn = document.createElement('button');
-            editBtn.className = 'message-action-btn edit';
-            editBtn.innerHTML = '<i class="fas fa-edit"></i> 编辑';
-            editBtn.dataset.index = index;
-            editBtn.addEventListener('click', editMessage);
-            
-            messageActions.appendChild(editBtn);
-            
-            const deleteBtn = container.querySelector(`button[data-action="delete-message"][data-index="${index}"]`);
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', function() {
-                    deleteMessage(index);
-                });
-            }
-        }
-        
-        function loadMoreMessages() {
-            if (currentPage > 1) {
-                currentPage--;
-                renderMessages(true, true); // 保持滚动位置
-            }
-        }
-        
-        function addSingleMessage(message, index, conversation) {
-            // 如果当前显示的是最新消息，直接添加新消息
-            if (currentPage >= totalPages - 1 || conversation.messages.length <= messagesPerPage * 2) {
-                const messageElement = createMessageElement(message, index, conversation);
-                messagesContainer.appendChild(messageElement);
-                
-                // 只有当用户已经在最底部附近时，才自动滚动到底部
-                const scrollTop = messagesContainer.scrollTop;
-                const scrollHeight = messagesContainer.scrollHeight;
-                const clientHeight = messagesContainer.clientHeight;
-                const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
-                
-                if (isNearBottom) {
-                    setTimeout(() => {
-                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                    }, 50);
-                }
-            } else {
-                // 如果不在最新消息页面，显示新消息提示
-                showNewMessageNotification(conversation.messages.length - index);
-            }
-        }
-        
-        function showNewMessageNotification(newMessageCount) {
-            // 移除现有的通知
-            const existingNotification = document.querySelector('.new-message-notification');
-            if (existingNotification) {
-                existingNotification.remove();
-            }
-            
-            const notification = document.createElement('div');
-            notification.className = 'new-message-notification';
-            notification.innerHTML = `
-                <span>有 ${newMessageCount} 条新消息</span>
-                <button onclick="scrollToLatest()">查看最新</button>
-            `;
-            
-            messagesContainer.appendChild(notification);
-            
-            // 5秒后自动隐藏
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.remove();
-                }
-            }, 5000);
-        }
-        
-        function scrollToLatest() {
-            const conversation = getCurrentConversation();
-            if (!conversation) return;
-            
-            // 确保显示最新的消息
-            const messageCount = conversation.messages.length;
-            totalPages = Math.ceil(messageCount / messagesPerPage);
-            currentPage = totalPages;
-            
-            // 强制渲染并滚动到最底部
-            renderMessages(true);
-            
-            // 移除新消息通知
-            const existingNotification = document.querySelector('.new-message-notification');
-            if (existingNotification) {
-                existingNotification.remove();
-            }
-        }
-        
-        // 添加滚动事件监听器，实现虚拟滚动
-        function setupScrollListener() {
-            let lastScrollTop = 0;
-            let isUserScrolling = false;
-            let autoScrollInProgress = false;
-            
-            messagesContainer.addEventListener('scroll', function() {
-                const scrollTop = messagesContainer.scrollTop;
-                
-                // 如果程序正在自动滚动，不处理用户滚动
-                if (autoScrollInProgress) return;
-                
-                // 检测用户是否在主动滚动（而不是程序自动滚动）
-                if (Math.abs(scrollTop - lastScrollTop) > 5) {
-                    isUserScrolling = true;
-                }
-                lastScrollTop = scrollTop;
-                
-                if (scrollTimeout) {
-                    clearTimeout(scrollTimeout);
-                }
-                
-                scrollTimeout = setTimeout(() => {
-                    const scrollHeight = messagesContainer.scrollHeight;
-                    const clientHeight = messagesContainer.clientHeight;
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'message-action-btn copy';
+                    copyBtn.innerHTML = '<i class="fas fa-copy"></i> 复制';
+                    copyBtn.dataset.index = index;
+                    copyBtn.addEventListener('click', copyAIMessage);
                     
-                    // 只有当用户主动滚动到最顶部时，才自动加载更多消息
-                    if (isUserScrolling && scrollTop === 0 && currentPage > 1) {
-                        autoScrollInProgress = true;
-                        currentPage--;
-                        renderMessages(true, true); // 保持滚动位置
+                    const undoBtn = document.createElement('button');
+                    undoBtn.className = 'message-action-btn undo';
+                    undoBtn.innerHTML = '<i class="fas fa-undo"></i> 撤回';
+                    undoBtn.dataset.index = index;
+                    undoBtn.addEventListener('click', undoMessagePair);
+                    
+                    messageActions.appendChild(regenerateBtn);
+                    messageActions.appendChild(copyBtn);
+                    messageActions.appendChild(undoBtn);
+                } else if (message.role === 'user') {
+                    if (isFailed) {
+                        const resendBtn = document.createElement('button');
+                        resendBtn.className = 'message-action-btn resend';
+                        resendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 重新发送';
+                        resendBtn.dataset.index = index;
+                        resendBtn.addEventListener('click', resendMessage);
                         
-                        // 重置自动滚动状态
-                        setTimeout(() => {
-                            autoScrollInProgress = false;
-                        }, 100);
+                        messageActions.appendChild(resendBtn);
                     }
-                    
-                    // 只有当用户主动滚动到最底部时，才自动跳转到最新消息
-                    if (isUserScrolling && scrollHeight - scrollTop - clientHeight === 0 && currentPage < totalPages) {
-                        autoScrollInProgress = true;
-                        currentPage = totalPages;
-                        renderMessages(true);
-                        
-                        // 重置自动滚动状态
-                        setTimeout(() => {
-                            autoScrollInProgress = false;
-                        }, 100);
-                    }
-                    
-                    // 重置用户滚动状态
-                    isUserScrolling = false;
-                }, 300); // 增加防抖时间，减少误触
-            });
-        }
-        
-        // 优化加载更多按钮的点击体验
-        function optimizeLoadMoreButton() {
-            // 监听加载更多按钮的点击事件
-            document.addEventListener('click', function(e) {
-                if (e.target.closest('.load-more-btn')) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // 添加点击反馈
-                    const button = e.target.closest('.load-more-btn');
-                    button.style.transform = 'scale(0.95)';
-                    button.style.opacity = '0.8';
-                    
-                    setTimeout(() => {
-                        button.style.transform = '';
-                        button.style.opacity = '';
-                    }, 150);
-                    
-                    // 调用加载更多函数
-                    loadMoreMessages();
+                }
+                
+                const editBtn = document.createElement('button');
+                editBtn.className = 'message-action-btn edit';
+                editBtn.innerHTML = '<i class="fas fa-edit"></i> 编辑';
+                editBtn.dataset.index = index;
+                editBtn.addEventListener('click', editMessage);
+                
+                messageActions.appendChild(editBtn);
+                
+                const deleteBtn = document.querySelector(`button[data-action="delete-message"][data-index="${index}"]`);
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', function() {
+                        deleteMessage(index);
+                    });
                 }
             });
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
         
         function copyAIMessage(e) {
@@ -7006,13 +6667,7 @@
             conversation.isNew = false;
             conversation.updatedAt = new Date().toISOString();
             
-            // 优化：只添加新消息，而不是重新渲染整个对话
-            if (conversation.messages.length <= messagesPerPage * 2) {
-                renderMessages();
-            } else {
-                // 如果是长对话，只添加用户消息
-                addSingleMessage(userMessage, conversation.messages.length - 1, conversation);
-            }
+            renderMessages();
             updateActionButtons();
             
             const aiAvatar = getAiAvatar();
@@ -7087,13 +6742,7 @@
                 
                 saveUserData();
                 
-                // 优化：只添加AI回复消息，而不是重新渲染整个对话
-                if (conversation.messages.length <= messagesPerPage * 2) {
-                    renderMessages();
-                } else {
-                    // 如果是长对话，只添加AI回复消息
-                    addSingleMessage(aiMessage, conversation.messages.length - 1, conversation);
-                }
+                renderMessages();
                 updateRecentConversations();
                 updateActionButtons();
                 
@@ -7112,7 +6761,6 @@
                 
                 saveUserData();
                 
-                // 优化：只重新渲染失败的消息，而不是整个对话
                 renderMessages();
                 updateActionButtons();
                 
