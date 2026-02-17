@@ -5046,6 +5046,7 @@
             
             // 初始化滚动监听器
             setupScrollListener();
+            optimizeLoadMoreButton();
         }
         
         function handleKeyboardShortcuts(e) {
@@ -5963,7 +5964,7 @@
         // 消息缓存，避免重复渲染
         const messageCache = new Map();
         
-        function renderMessages(forceRender = false) {
+        function renderMessages(forceRender = false, preserveScrollPosition = false) {
             const conversation = getCurrentConversation();
             
             if (!conversation || conversation.messages.length === 0) {
@@ -6008,6 +6009,12 @@
             
             visibleMessages = newVisibleMessages;
             
+            // 保存当前滚动位置（如果需要保持）
+            let scrollPosition = 0;
+            if (preserveScrollPosition) {
+                scrollPosition = messagesContainer.scrollTop;
+            }
+            
             // 使用文档片段进行批量DOM操作
             const fragment = document.createDocumentFragment();
             
@@ -6034,12 +6041,16 @@
                 messagesContainer.insertBefore(loadMoreBtn, messagesContainer.firstChild);
             }
             
-            // 滚动到底部（如果是新消息）
-            if (forceRender || currentPage >= totalPages - 1) {
-                setTimeout(() => {
+            // 恢复滚动位置或滚动到底部
+            setTimeout(() => {
+                if (preserveScrollPosition && scrollPosition > 0) {
+                    // 恢复之前的滚动位置
+                    messagesContainer.scrollTop = scrollPosition;
+                } else if (forceRender || currentPage >= totalPages - 1) {
+                    // 只有在新消息或查看最新时才滚动到底部
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }, 50);
-            }
+                }
+            }, 50);
         }
         
         function renderAllMessages(conversation) {
@@ -6205,7 +6216,7 @@
         function loadMoreMessages() {
             if (currentPage > 1) {
                 currentPage--;
-                renderMessages(true);
+                renderMessages(true, true); // 保持滚动位置
             }
         }
         
@@ -6215,10 +6226,17 @@
                 const messageElement = createMessageElement(message, index, conversation);
                 messagesContainer.appendChild(messageElement);
                 
-                // 滚动到底部
-                setTimeout(() => {
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }, 50);
+                // 只有当用户已经在最底部附近时，才自动滚动到底部
+                const scrollTop = messagesContainer.scrollTop;
+                const scrollHeight = messagesContainer.scrollHeight;
+                const clientHeight = messagesContainer.clientHeight;
+                const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+                
+                if (isNearBottom) {
+                    setTimeout(() => {
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    }, 50);
+                }
             } else {
                 // 如果不在最新消息页面，显示新消息提示
                 showNewMessageNotification(conversation.messages.length - index);
@@ -6250,34 +6268,101 @@
         }
         
         function scrollToLatest() {
+            const conversation = getCurrentConversation();
+            if (!conversation) return;
+            
+            // 确保显示最新的消息
+            const messageCount = conversation.messages.length;
+            totalPages = Math.ceil(messageCount / messagesPerPage);
             currentPage = totalPages;
+            
+            // 强制渲染并滚动到最底部
             renderMessages(true);
+            
+            // 移除新消息通知
+            const existingNotification = document.querySelector('.new-message-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
         }
         
         // 添加滚动事件监听器，实现虚拟滚动
         function setupScrollListener() {
+            let lastScrollTop = 0;
+            let isUserScrolling = false;
+            let autoScrollInProgress = false;
+            
             messagesContainer.addEventListener('scroll', function() {
+                const scrollTop = messagesContainer.scrollTop;
+                
+                // 如果程序正在自动滚动，不处理用户滚动
+                if (autoScrollInProgress) return;
+                
+                // 检测用户是否在主动滚动（而不是程序自动滚动）
+                if (Math.abs(scrollTop - lastScrollTop) > 5) {
+                    isUserScrolling = true;
+                }
+                lastScrollTop = scrollTop;
+                
                 if (scrollTimeout) {
                     clearTimeout(scrollTimeout);
                 }
                 
                 scrollTimeout = setTimeout(() => {
-                    const scrollTop = messagesContainer.scrollTop;
                     const scrollHeight = messagesContainer.scrollHeight;
                     const clientHeight = messagesContainer.clientHeight;
                     
-                    // 如果滚动到顶部附近，加载更多消息
-                    if (scrollTop < 100 && currentPage > 1) {
+                    // 只有当用户主动滚动到最顶部时，才自动加载更多消息
+                    if (isUserScrolling && scrollTop === 0 && currentPage > 1) {
+                        autoScrollInProgress = true;
                         currentPage--;
-                        renderMessages(true);
+                        renderMessages(true, true); // 保持滚动位置
+                        
+                        // 重置自动滚动状态
+                        setTimeout(() => {
+                            autoScrollInProgress = false;
+                        }, 100);
                     }
                     
-                    // 如果滚动到底部附近，确保显示最新消息
-                    if (scrollHeight - scrollTop - clientHeight < 100 && currentPage < totalPages) {
+                    // 只有当用户主动滚动到最底部时，才自动跳转到最新消息
+                    if (isUserScrolling && scrollHeight - scrollTop - clientHeight === 0 && currentPage < totalPages) {
+                        autoScrollInProgress = true;
                         currentPage = totalPages;
                         renderMessages(true);
+                        
+                        // 重置自动滚动状态
+                        setTimeout(() => {
+                            autoScrollInProgress = false;
+                        }, 100);
                     }
-                }, 150);
+                    
+                    // 重置用户滚动状态
+                    isUserScrolling = false;
+                }, 300); // 增加防抖时间，减少误触
+            });
+        }
+        
+        // 优化加载更多按钮的点击体验
+        function optimizeLoadMoreButton() {
+            // 监听加载更多按钮的点击事件
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.load-more-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // 添加点击反馈
+                    const button = e.target.closest('.load-more-btn');
+                    button.style.transform = 'scale(0.95)';
+                    button.style.opacity = '0.8';
+                    
+                    setTimeout(() => {
+                        button.style.transform = '';
+                        button.style.opacity = '';
+                    }, 150);
+                    
+                    // 调用加载更多函数
+                    loadMoreMessages();
+                }
             });
         }
         
