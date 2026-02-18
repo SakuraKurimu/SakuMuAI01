@@ -2855,7 +2855,7 @@
                     </div>
                     <div class="app-info">
                         <span class="app-name">樱梦DX AI</span>
-                        <div class="app-version">SakuMuAI.Ver.2.1</div>
+                        <div class="app-version">SakuMuAI.Ver.2.2</div>
                         <div class="app-copyright" id="copyrightInfo">樱梦AI © 2026 | Made by 樱玖璃梦</div>
                     </div>
                 </div>
@@ -2943,12 +2943,7 @@
                     </div>
                 </div>
                 
-                <div class="battery-actions">
-                    <button class="btn btn-success btn-block" id="rechargeBtn">
-                        <i class="fas fa-bolt"></i>
-                        充值
-                    </button>
-                </div>
+
             </div>
         </div>
         
@@ -2964,10 +2959,6 @@
                 </div>
                 
                 <div class="header-actions">
-                    <button class="btn btn-primary" id="batteryDetailsBtn">
-                        <i class="fas fa-battery-three-quarters"></i>
-                        <span>电池详情</span>
-                    </button>
                     <button class="btn btn-primary" id="presetManagementBtn">
                         <i class="fas fa-sliders-h"></i>
                         <span>预设指令</span>
@@ -2976,6 +2967,10 @@
                     <button class="btn btn-info" id="settingsBtn">
                         <i class="fas fa-cog"></i>
                         <span>设置</span>
+                    </button>
+                    <button class="btn btn-primary" id="shopBtn">
+                        <i class="fas fa-store"></i>
+                        <span>商店</span>
                     </button>
                 </div>
                 
@@ -3037,7 +3032,8 @@
                             </button>
                         </div>
                     </div>
-                    
+                    <div class="settings-divider"></div>
+
                     <div class="settings-group">
                         <label class="settings-label">聊天背景设置</label>
                         <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
@@ -3061,7 +3057,8 @@
                             </button>
                         </div>
                     </div>
-                    
+                    <div class="settings-divider"></div>
+
                     <div class="settings-group">
                         <label class="settings-label">全屏模式</label>
                         <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
@@ -3225,7 +3222,7 @@
     <div class="modal" id="rechargeModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">电池充值</h3>
+                <h3 class="modal-title">金币充值</h3>
                 <button class="modal-close" id="closeRechargeModal">&times;</button>
             </div>
             <div class="modal-body">
@@ -3235,7 +3232,7 @@
                 </div>
                 
                 <button class="btn btn-primary" id="useRechargeCodeBtn" style="width: 100%; margin-top: 15px;">
-                    <i class="fas fa-bolt"></i>
+                    <i class="fas fa-coins"></i>
                     使用充值码
                 </button>
                 
@@ -3251,8 +3248,8 @@
                         <span id="rechargeUsername"></span>
                     </div>
                     <div class="recharge-info-item">
-                        <span>充值电池量:</span>
-                        <span id="rechargeBattery" style="color: var(--secondary-color); font-weight: 700;"></span>
+                        <span>充值金币数:</span>
+                        <span id="rechargeCoins" style="color: var(--warning-color); font-weight: 700;"></span>
                     </div>
                     <div class="recharge-info-item">
                         <span>生成时间:</span>
@@ -3341,21 +3338,21 @@
         </div>
     </div>
     
-    <div class="modal battery-details-modal" id="batteryDetailsModal">
+    <div class="modal" id="shopModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">电池详情</h3>
-                <button class="modal-close" id="closeBatteryDetailsModal">&times;</button>
+                <h3 class="modal-title">商店</h3>
+                <button class="modal-close" id="closeShopModal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="battery-summary" style="margin-bottom: 20px; padding: 15px; background-color: rgba(255, 255, 255, 0.03); border-radius: 8px;">
-                    <div class="battery-summary-item battery-summary-total">
-                        <span>总消耗:</span>
-                        <span id="batteryDetailsTotalCost">0.000</span>
+                <div class="user-balance" style="margin-bottom: 20px; padding: 15px; background-color: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+                    <div class="balance-item">
+                        <span>金币余额:</span>
+                        <span id="userCoins" style="color: var(--warning-color); font-weight: 700;">0</span>
                     </div>
-                    <div class="battery-summary-item battery-summary-remaining">
+                    <div class="balance-item">
                         <span>电池剩余:</span>
-                        <span id="batteryDetailsRemaining">0.000</span>
+                        <span id="userBattery">0.000</span>
                     </div>
 
                     <div class="time-card-summary" id="timeCardSummary" style="display: none; margin-top: 10px; padding: 10px; background-color: rgba(16, 185, 129, 0.1); border-radius: 5px;">
@@ -3377,94 +3374,129 @@
                     </div>
                 </div>
                 
-                <div class="price-table-section" style="margin-top: 30px;">
-                    <h4 style="margin-bottom: 20px; color: var(--primary-color); border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">价目表</h4>
+                <div class="shop-section" style="margin-top: 30px;">
+                    <h4 style="margin-bottom: 20px; color: var(--primary-color); border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">商品列表</h4>
                     
-                    <div class="price-table-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="shop-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         
-                        <div class="battery-pricing">
-                            <h5 style="color: var(--secondary-color); margin-bottom: 15px;"><i class="fas fa-battery-full"></i> 电池计费</h5>
-                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                        <div class="battery-packages">
+                            <h5 style="color: var(--secondary-color); margin-bottom: 15px;"><i class="fas fa-battery-full"></i> 电池包</h5>
+                            <div class="shop-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span>1元</span>
-                                    <span style="color: var(--secondary-color); font-weight: 500;">200电池</span>
+                                    <span>200电池</span>
+                                    <span style="color: var(--secondary-color); font-weight: 500;">100金币</span>
                                 </div>
+                                <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 8px;" onclick="buyBattery(200, 100)">购买</button>
                             </div>
-                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                            <div class="shop-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span>5元</span>
-                                    <span style="color: var(--secondary-color); font-weight: 500;">1100电池</span>
+                                    <span>1100电池</span>
+                                    <span style="color: var(--secondary-color); font-weight: 500;">500金币</span>
                                 </div>
+                                <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 8px;" onclick="buyBattery(1100, 500)">购买</button>
                             </div>
-                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                            <div class="shop-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span>20元</span>
-                                    <span style="color: var(--secondary-color); font-weight: 500;">5000电池</span>
+                                    <span>2300电池</span>
+                                    <span style="color: var(--secondary-color); font-weight: 500;">1000金币</span>
                                 </div>
+                                <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 8px;" onclick="buyBattery(2300, 1000)">购买</button>
                             </div>
-                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px; opacity: 0.6;">
+                            <div class="shop-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span>15000电池</span>
-                                    <span style="color: var(--text-secondary); font-style: italic;">暂未开放购买</span>
+                                    <span>5000电池</span>
+                                    <span style="color: var(--secondary-color); font-weight: 500;">2000金币</span>
                                 </div>
+                                <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 8px;" onclick="buyBattery(5000, 2000)">购买</button>
                             </div>
-                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px; opacity: 0.6;">
+                            <div class="shop-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span>35000电池</span>
-                                    <span style="color: var(--text-secondary); font-style: italic;">暂未开放购买</span>
+                                    <span>7800电池</span>
+                                    <span style="color: var(--secondary-color); font-weight: 500;">3000金币</span>
                                 </div>
+                                <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 8px;" onclick="buyBattery(7800, 3000)">购买</button>
                             </div>
-                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px; opacity: 0.6;">
+                            <div class="shop-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span>80000电池</span>
-                                    <span style="color: var(--text-secondary); font-style: italic;">暂未开放购买</span>
+                                    <span>13500电池</span>
+                                    <span style="color: var(--secondary-color); font-weight: 500;">5000金币</span>
                                 </div>
+                                <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 8px;" onclick="buyBattery(13500, 5000)">购买</button>
+                            </div>
+                            <div class="shop-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>28000电池</span>
+                                    <span style="color: var(--secondary-color); font-weight: 500;">10000金币</span>
+                                </div>
+                                <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 8px;" onclick="buyBattery(28000, 10000)">购买</button>
                             </div>
                         </div>
                         
-                        <div class="membership-pricing">
-                            <h5 style="color: var(--warning-color); margin-bottom: 15px;"><i class="fas fa-crown"></i> 会员卡</h5>
-                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                        <div class="time-packages">
+                            <h5 style="color: var(--warning-color); margin-bottom: 15px;"><i class="fas fa-crown"></i> 时长卡</h5>
+                            <div class="shop-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span>1元</span>
-                                    <span style="color: var(--warning-color); font-weight: 500;">1天</span>
+                                    <span>1天</span>
+                                    <span style="color: var(--warning-color); font-weight: 500;">100金币</span>
                                 </div>
+                                <button class="btn btn-warning btn-sm" style="width: 100%; margin-top: 8px;" onclick="buyTimeCard(1, 100)">购买</button>
                             </div>
-                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                            <div class="shop-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span>5元</span>
-                                    <span style="color: var(--warning-color); font-weight: 500;">7天</span>
+                                    <span>7天</span>
+                                    <span style="color: var(--warning-color); font-weight: 500;">500金币</span>
                                 </div>
+                                <button class="btn btn-warning btn-sm" style="width: 100%; margin-top: 8px;" onclick="buyTimeCard(7, 500)">购买</button>
                             </div>
-                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                            <div class="shop-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span>20元</span>
-                                    <span style="color: var(--warning-color); font-weight: 500;">30天</span>
+                                    <span>14天</span>
+                                    <span style="color: var(--warning-color); font-weight: 500;">1000金币</span>
                                 </div>
+                                <button class="btn btn-warning btn-sm" style="width: 100%; margin-top: 8px;" onclick="buyTimeCard(14, 1000)">购买</button>
                             </div>
-                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px; opacity: 0.6;">
+                            <div class="shop-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span>90天</span>
-                                    <span style="color: var(--text-secondary); font-style: italic;">暂未开放购买</span>
+                                    <span>30天</span>
+                                    <span style="color: var(--warning-color); font-weight: 500;">2000金币</span>
                                 </div>
+                                <button class="btn btn-warning btn-sm" style="width: 100%; margin-top: 8px;" onclick="buyTimeCard(30, 2000)">购买</button>
                             </div>
-                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px; opacity: 0.6;">
+                            <div class="shop-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span>180天</span>
-                                    <span style="color: var(--text-secondary); font-style: italic;">暂未开放购买</span>
+                                    <span>47天</span>
+                                    <span style="color: var(--warning-color); font-weight: 500;">3000金币</span>
                                 </div>
+                                <button class="btn btn-warning btn-sm" style="width: 100%; margin-top: 8px;" onclick="buyTimeCard(47, 3000)">购买</button>
                             </div>
-                            <div class="price-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px; opacity: 0.6;">
+                            <div class="shop-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span>365天</span>
-                                    <span style="color: var(--text-secondary); font-style: italic;">暂未开放购买</span>
+                                    <span>81天</span>
+                                    <span style="color: var(--warning-color); font-weight: 500;">5000金币</span>
                                 </div>
+                                <button class="btn btn-warning btn-sm" style="width: 100%; margin-top: 8px;" onclick="buyTimeCard(81, 5000)">购买</button>
+                            </div>
+                            <div class="shop-item" style="background-color: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>168天</span>
+                                    <span style="color: var(--warning-color); font-weight: 500;">10000金币</span>
+                                </div>
+                                <button class="btn btn-warning btn-sm" style="width: 100%; margin-top: 8px;" onclick="buyTimeCard(168, 10000)">购买</button>
                             </div>
                         </div>
                     </div>
                     
                     <div style="text-align: center; margin-top: 20px; padding: 15px; background-color: rgba(59, 130, 246, 0.1); border-radius: 8px; font-size: 0.9rem; color: var(--text-secondary);">
-                        <i class="fas fa-info-circle"></i> 如需购买，请联系管理员获取充值码
+                        <i class="fas fa-info-circle"></i> 使用金币购买电池或时长卡，买的越多优惠越多
+                    </div>
+                    
+                    <div class="recharge-section" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                        <h4 style="margin-bottom: 15px; color: var(--primary-color);">充值金币</h4>
+                        <button class="btn btn-success btn-block" id="shopRechargeBtn" style="margin-top: 10px;">
+                            <i class="fas fa-coins"></i>
+                            充值金币
+                        </button>
+                        <small style="color: var(--text-secondary); display: block; margin-top: 8px;">联系管理员获取充值码</small>
                     </div>
                 </div>
 
@@ -3592,6 +3624,7 @@
         let customPresets = [];
         
         let battery = 0.000;
+        let coins = 0;
         let isRechargeCodeUsed = false;
         let apiToDelete = null;
         let deleteTimer = null;
@@ -3624,7 +3657,6 @@
         const userEmail = document.getElementById('userEmail');
         const logoutBtn = document.getElementById('logoutBtn');
         const batteryAmount = document.getElementById('batteryAmount');
-        const rechargeBtn = document.getElementById('rechargeBtn');
         const currentTimeElement = document.getElementById('currentTime');
         const recentConversationsTitle = document.getElementById('recentConversationsTitle');
         const recentConversations = document.getElementById('recentConversations');
@@ -3702,10 +3734,9 @@
         const exportSelectedPresetsBtn = document.getElementById('exportSelectedPresetsBtn');
         const importPresetsBtn = document.getElementById('importPresetsBtn');
         const presetList = document.getElementById('presetList');
-        const batteryDetailsBtn = document.getElementById('batteryDetailsBtn');
-        const batteryDetailsModal = document.getElementById('batteryDetailsModal');
-        const closeBatteryDetailsModal = document.getElementById('closeBatteryDetailsModal');
-        const batteryDetailsTotalCost = document.getElementById('batteryDetailsTotalCost');
+        const shopBtn = document.getElementById('shopBtn');
+        const shopModal = document.getElementById('shopModal');
+        const closeShopModal = document.getElementById('closeShopModal');
         const aiFirstButton = document.getElementById('aiFirstButton');
         const continueButton = document.getElementById('continueButton');
         
@@ -4484,11 +4515,6 @@
                 }
             });
             
-            rechargeBtn.addEventListener('click', () => {
-                rechargeModal.classList.add('active');
-                updateCurrentTime();
-            });
-            
             closeRechargeModal.addEventListener('click', () => {
                 rechargeModal.classList.remove('active');
                 rechargeInfo.style.display = 'none';
@@ -4599,9 +4625,9 @@
             closePresetModal.addEventListener('click', () => presetModal.classList.remove('active'));
             closeRenameModal.addEventListener('click', () => renameModal.classList.remove('active'));
             closeApiModal.addEventListener('click', () => apiModal.classList.remove('active'));
-            closeBatteryDetailsModal.addEventListener('click', () => batteryDetailsModal.classList.remove('active'));
+            closeShopModal.addEventListener('click', () => shopModal.classList.remove('active'));
             
-            [rechargeModal, presetModal, renameModal, apiModal, deleteApiModal, batteryDetailsModal].forEach(modal => {
+            [rechargeModal, presetModal, renameModal, apiModal, deleteApiModal, shopModal].forEach(modal => {
                 modal.addEventListener('click', function(e) {
                     if (e.target === this) {
                         this.classList.remove('active');
@@ -5036,10 +5062,20 @@
                 handleNicknameChange();
             });
             
-            batteryDetailsBtn.addEventListener('click', function() {
-                batteryDetailsModal.classList.add('active');
-                loadBatteryDetails();
+            shopBtn.addEventListener('click', function() {
+                shopModal.classList.add('active');
+                updateShopUI();
             });
+            
+            // 商店页面中的充值按钮
+            const shopRechargeBtn = document.getElementById('shopRechargeBtn');
+            if (shopRechargeBtn) {
+                shopRechargeBtn.addEventListener('click', function() {
+                    shopModal.classList.remove('active');
+                    rechargeModal.classList.add('active');
+                    updateCurrentTime();
+                });
+            }
             
             aiFirstButton.addEventListener('click', aiFirst);
             continueButton.addEventListener('click', continueConversation);
@@ -5536,7 +5572,7 @@
                 const decoded = atob(code);
                 const data = JSON.parse(decoded);
                 
-                if (!data.email || !data.username || data.battery === undefined || !data.securityCode || !data.timestamp) {
+                if (!data.email || !data.username || data.coins === undefined || !data.securityCode || !data.timestamp) {
                     showNotification('充值码格式错误', 'error');
                     return;
                 }
@@ -5591,47 +5627,39 @@
                     }
                 }
                 
-                
-                const isTimeCard = data.timeCardType && data.timeCardDuration;
-                
                 rechargeEmail.textContent = data.email;
                 rechargeUsername.textContent = data.username;
-                
-                if (isTimeCard) {
-                    rechargeBattery.textContent = `时长卡 (无限电量)`;
-                } else {
-                    rechargeBattery.textContent = data.battery.toFixed(3);
-                }
-                
+                rechargeCoins.textContent = data.coins.toFixed(0);
                 rechargeTime.textContent = formatDateTime(new Date(data.timestamp));
                 rechargeSecurityCode.textContent = data.securityCode;
                 rechargeInfo.style.display = 'block';
                 
-                const isTimeCardActive = currentUser.timeCard && currentUser.timeCard.active;
-                const confirmMessage = isTimeCard 
-                    ? isTimeCardActive 
-                        ? `确定要延长 时长卡 吗？延长: ${data.timeCardDuration}天`
-                        : `确定要激活 时长卡 吗？有效期: ${data.timeCardDuration}天`
-                    : `确定要充值 ${data.battery.toFixed(3)} 电池吗？`;
+                const confirmMessage = `确定要充值 ${data.coins.toFixed(0)} 金币吗？`;
                 
                 const confirmed = await customConfirm(confirmMessage, '充值确认');
                 if (confirmed) {
                     usedCodes.push(code);
                     localStorage.setItem('sakuraAI_usedRechargeCodes', JSON.stringify(usedCodes));
                     
-                    if (isTimeCard) {
-                        
-                        activateTimeCard(data.timeCardType, data.timeCardDuration);
-                        showNotification(isTimeCardActive 
-                            ? `成功延长 时长卡！延长: ${data.timeCardDuration}天`
-                            : `成功激活 时长卡！有效期: ${data.timeCardDuration}天`, 'success');
+                    coins += data.coins;
+                    
+                    const rechargeRecord = {
+                        id: Date.now(),
+                        amount: data.coins,
+                        type: 'coins',
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    if (currentUser.rechargeRecords) {
+                        currentUser.rechargeRecords.push(rechargeRecord);
                     } else {
-                        
-                        rechargeBatteryFunc(data.battery);
-                        showNotification(`成功充值 ${data.battery.toFixed(3)} 电池`, 'success');
+                        currentUser.rechargeRecords = [rechargeRecord];
                     }
                     
                     saveUserData();
+                    updateShopUI();
+                    
+                    showNotification(`成功充值 ${data.coins.toFixed(0)} 金币`, 'success');
                     
                     rechargeModal.classList.remove('active');
                     rechargeInfo.style.display = 'none';
@@ -5654,10 +5682,93 @@
             return Math.abs(hash).toString(16);
         }
         
+        async function buyBattery(batteryAmount, coinCost) {
+            if (coins < coinCost) {
+                showNotification('金币不足，无法购买', 'error');
+                return;
+            }
+            
+            const confirmed = await customConfirm(`确定花费 ${coinCost} 金币购买 ${batteryAmount} 电池吗？`, '购买确认');
+            if (confirmed) {
+                coins -= coinCost;
+                battery += batteryAmount;
+                
+                const purchaseRecord = {
+                    id: Date.now(),
+                    type: 'battery',
+                    amount: batteryAmount,
+                    cost: coinCost,
+                    timestamp: new Date().toISOString()
+                };
+                
+                if (currentUser.purchaseRecords) {
+                    currentUser.purchaseRecords.push(purchaseRecord);
+                } else {
+                    currentUser.purchaseRecords = [purchaseRecord];
+                }
+                
+                saveUserData();
+                updateBatteryUI();
+                updateShopUI();
+                
+                showNotification(`成功购买 ${batteryAmount} 电池，花费 ${coinCost} 金币`, 'success');
+            }
+        }
+        
+        async function buyTimeCard(days, coinCost) {
+            if (coins < coinCost) {
+                showNotification('金币不足，无法购买', 'error');
+                return;
+            }
+            
+            const confirmed = await customConfirm(`确定花费 ${coinCost} 金币购买 ${days} 天时长卡吗？`, '购买确认');
+            if (confirmed) {
+                coins -= coinCost;
+                
+                const purchaseRecord = {
+                    id: Date.now(),
+                    type: 'timeCard',
+                    duration: days,
+                    cost: coinCost,
+                    timestamp: new Date().toISOString()
+                };
+                
+                if (currentUser.purchaseRecords) {
+                    currentUser.purchaseRecords.push(purchaseRecord);
+                } else {
+                    currentUser.purchaseRecords = [purchaseRecord];
+                }
+                
+                activateTimeCard('timeCard', days);
+                saveUserData();
+                updateShopUI();
+                
+                showNotification(`成功购买 ${days} 天时长卡，花费 ${coinCost} 金币`, 'success');
+            }
+        }
+        
+        function updateShopUI() {
+            const userCoinsElement = document.getElementById('userCoins');
+            const userBatteryElement = document.getElementById('userBattery');
+            
+            if (userCoinsElement) {
+                userCoinsElement.textContent = coins.toFixed(0);
+            }
+            if (userBatteryElement) {
+                userBatteryElement.textContent = battery.toFixed(3);
+            }
+        }
+        
+        function openShopModal() {
+            shopModal.classList.add('active');
+            updateShopUI();
+        }
+        
         function loadUserData() {
             if (!currentUser) return;
             
             battery = currentUser.battery || 0.000;
+            coins = currentUser.coins || 0;
             totalCost = currentUser.totalCost || 0;
             todayCost = currentUser.todayCost || 0;
             apis = currentUser.apis;
@@ -5701,12 +5812,16 @@
             if (!currentUser.consumptionRecords) {
                 currentUser.consumptionRecords = [];
             }
+            if (!currentUser.purchaseRecords) {
+                currentUser.purchaseRecords = [];
+            }
         }
         
         function saveUserData() {
             if (!currentUser) return;
             
             currentUser.battery = battery;
+            currentUser.coins = coins;
             currentUser.totalCost = totalCost;
             currentUser.todayCost = todayCost;
             currentUser.batteryHash = simpleHash(battery.toString() + ENCRYPTION_KEY);
